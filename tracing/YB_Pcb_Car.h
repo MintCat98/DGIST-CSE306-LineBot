@@ -1,25 +1,26 @@
 #ifndef YB_PCB_CAR_H
 #define YB_PCB_CAR_H
 
+#include <stdint.h>
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 
-class YB_Pcb_Car {
-public:
-    YB_Pcb_Car();
-    void Control_Car(int speed1, int speed2);
-    void Car_Run(int speed1, int speed2);
-    void Car_Stop();
-    void Car_Back(int speed1, int speed2);
-    void Car_Left(int speed1, int speed2);
-    void Car_Right(int speed1, int speed2);
-    void Car_Spin_Left(int speed1, int speed2);
-    void Car_Spin_Right(int speed1, int speed2);
-    void Ctrl_Servo(int id, int angle);
+typedef struct {
     int fd;
-    void write_u8(int reg, int data);
-    void write_array(int reg, uint8_t* data, int length);
-    void Ctrl_Car(int l_dir, int l_speed, int r_dir, int r_speed);
-};
+} YB_Pcb_Car;
+
+YB_Pcb_Car* YB_Pcb_Car_create();
+void Control_Car(YB_Pcb_Car* car, int speed1, int speed2);
+void Car_Run(YB_Pcb_Car* car, int speed1, int speed2);
+void Car_Stop(YB_Pcb_Car* car);
+void Car_Back(YB_Pcb_Car* car, int speed1, int speed2);
+void Car_Left(YB_Pcb_Car* car, int speed1, int speed2);
+void Car_Right(YB_Pcb_Car* car, int speed1, int speed2);
+void Car_Spin_Left(YB_Pcb_Car* car, int speed1, int speed2);
+void Car_Spin_Right(YB_Pcb_Car* car, int speed1, int speed2);
+void Ctrl_Servo(YB_Pcb_Car* car, int id, int angle);
+void write_u8(YB_Pcb_Car* car, int reg, int data);
+void write_array(YB_Pcb_Car* car, int reg, uint8_t* data, int length);
+void Ctrl_Car(YB_Pcb_Car* car, int l_dir, int l_speed, int r_dir, int r_speed);
 
 #endif

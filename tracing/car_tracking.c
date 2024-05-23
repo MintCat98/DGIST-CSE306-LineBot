@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <wiringPi.h>
 #include "car_control.h"
+#include "car_tracking.h"
 
 // GPIO 핀 정의
 #define Tracking_Left1 0

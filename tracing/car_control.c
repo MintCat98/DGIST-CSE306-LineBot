@@ -73,13 +73,3 @@ void Ctrl_Servo(int id, int angle) {
     write_block_data(CAR_ADDRESS, data, 2);
 }
 
-int main() {
-    setup_i2c();  // Initialize I2C only once
-
-    // Example usage
-    Car_Run(100, 100);
-    delay(2000);  // Run for 2 seconds
-    Car_Stop();
-
-    return 0;
-}

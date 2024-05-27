@@ -4,33 +4,26 @@
 #include <wiringPiI2C.h>
 #include "car_control.h"
 
-#define PIN_L1 2 
-#define PIN_L2 3
-#define PIN_R1 0
-#define PIN_R2 7
-
 #define CAR_ADDRESS 0x16
 
 int fd;
 
-void write_block_data(int i2c_addr, unsigned char* data, int length) {
-	// data: list of bytes
-    fd = wiringPiI2CSetup(i2c_addr);
+void setup_i2c() {
+    fd = wiringPiI2CSetup(CAR_ADDRESS);
     if (fd == -1) {
         printf("Failed to initialize I2C\n");
         exit(1);
     }
+}
 
+void write_block_data(int i2c_addr, unsigned char* data, int length) {
     for (int i = 0; i < length; ++i) {
         int result = wiringPiI2CWrite(fd, data[i]);
         if (result == -1) {
             printf("Failed to write data byte %d\n", i);
-            close(fd);
             exit(1);
         }
     }
-
-    close(fd);
 }
 
 void Ctrl_Car(int l_dir, int l_speed, int r_dir, int r_speed) {
@@ -78,4 +71,15 @@ void Ctrl_Servo(int id, int angle) {
     else if (angle > 180) angle = 180;
     unsigned char data[] = { id, angle };
     write_block_data(CAR_ADDRESS, data, 2);
+}
+
+int main() {
+    setup_i2c();  // Initialize I2C only once
+
+    // Example usage
+    Car_Run(100, 100);
+    delay(2000);  // Run for 2 seconds
+    Car_Stop();
+
+    return 0;
 }

@@ -17,6 +17,7 @@ void setup() {
         printf("Failed to set up WiringPi.\n");
         exit(1);
     }
+    printf("Setup #1 success!\n");
 
     // Init. WiringPiI2C
     fd = wiringPiI2CSetup(CAR_ADDRESS);
@@ -24,12 +25,14 @@ void setup() {
         printf("Failed to initialize I2C\n");
         exit(1);
     }
+    printf("Setup #2 success!\n");
     
     // Set INPUT Mode
     pinMode(Tracking_Left1, INPUT);
     pinMode(Tracking_Left2, INPUT);
     pinMode(Tracking_Right1, INPUT);
     pinMode(Tracking_Right2, INPUT);
+    printf("Setup all clear!\n");
 }
 
 void tracking_function() {

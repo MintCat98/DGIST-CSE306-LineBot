@@ -8,6 +8,7 @@ int main() {
 
     while (1) {
         tracking_function();
+        printf("Tracking_func is called.\n");
         delay(100);
     }
 

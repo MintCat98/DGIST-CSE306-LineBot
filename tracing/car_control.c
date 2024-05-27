@@ -20,6 +20,7 @@ void write_block_data(int i2c_addr, unsigned char* data, int length) {
         printf("[I2C Error] Failed to write.\n");
         exit(1);
     }
+    printf("Data-Write Success.\n");
 }
 
 void Ctrl_Car(int l_dir, int l_speed, int r_dir, int r_speed) {

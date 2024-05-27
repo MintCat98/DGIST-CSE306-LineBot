@@ -14,9 +14,9 @@ void write_block_data(int i2c_addr, unsigned char* data, int length) {
     copy[0] = i2c_addr;
     for (size_t i = 0; i < length; i++)
     {
-        temp[i + 1] = data[i];
+        copy[i + 1] = data[i];
     }
-    if (write(fd, temp, new_len) != new_len) {
+    if (write(fd, copy, new_len) != new_len) {
         printf("[I2C Error] Failed to write.\n");
         exit(1);
     }

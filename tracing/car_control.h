@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-#define PIN_L1 2 
-#define PIN_L2 3
-#define PIN_R1 0
-#define PIN_R2 7
+#define SENEOR_LEFT1 2 
+#define SENSOR_LEFT2 3
+#define SENSOR_RIGHT1 0
+#define SENSOR_RIGHT2 7
 
 #define CAR_ADDRESS 0x16
 

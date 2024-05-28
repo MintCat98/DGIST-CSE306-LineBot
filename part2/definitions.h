@@ -5,7 +5,13 @@
 #define CLIENTS 2
 
 #define SERVER_IP "127.0.0.1"
+#define SERVER_PORT 12345
 
+struct QRCodeInfo {
+    int x;
+    int y;
+    char data[128];
+};
 
 enum Status {
     nothing,
@@ -53,3 +59,7 @@ typedef struct {
     int col;
     enum Action action;
 } ClientAction;
+
+int create_socket();
+void send_action(int sock, int x, int y, enum Action action);
+void receive_dgist(int sock, DGIST* dgist);

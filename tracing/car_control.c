@@ -25,11 +25,17 @@ void write_block_data(int reg, unsigned char* data, int length) {
 void Ctrl_Car(int l_dir, int l_speed, int r_dir, int r_speed) {
     int reg = 0x01;
     unsigned char data[] = { l_dir, l_speed, r_dir, r_speed };
-    write_block_data(i2c_addr, data, 4);
+    write_block_data(reg, data, 4);
 }
 
 void Run_Car(int speed1, int speed2) {
     int dir1 = speed1 < 0 ? 0 : 1;
     int dir2 = speed2 < 0 ? 0 : 1;
     Ctrl_Car(dir1, abs(speed1), dir2, abs(speed2));
+}
+
+void Stop_Car() {
+    int reg = 0x01;
+    unsigned char data[] = { 0, 0, 0, 0 };
+    write_block_data(reg, data, 4);
 }

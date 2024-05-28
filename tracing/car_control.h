@@ -11,4 +11,6 @@ void Ctrl_Car(int l_dir, int l_speed, int r_dir, int r_speed);
 
 void Run_Car(int speed1, int speed2);
 
+void Stop_Car();
+
 #endif // CAR_CONTROL_H

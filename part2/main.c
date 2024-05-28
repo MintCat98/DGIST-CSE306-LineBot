@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <pthread.h>
 #include "definitions.h"
 
 // C++에서 정의된 함수 선언
@@ -97,38 +98,50 @@ int should_place_bomb(DGIST* dgist, int my_index, int remaining_time) {
     return 0;
 }
 
-
-int main() {
+void* qr_thread(void* arg) {
     struct QRCodeInfo qr_info;
     bool qr_detected = false;
 
-    /*
+    printf("qr thread started!\n");
+    
     while (true) {
+        /*
         detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
+            printf("QR Code Detected:\n");
             printf("Current location: (%d, %d)\n", qr_info.x, qr_info.y);
             printf("QR Code Data: %s\n", qr_info.data);
             qr_detected = false; // Reset the flag for the next detection
         }
-    }*/
 
+        usleep(100000); // 0.1초 대기
+        */
+       sleep(10);
+       break;
+    }
+    
+    printf("qr thread ended!\n");
+    return NULL;
+}
+
+void* server_thread(void* arg) {
     int sock = create_socket();
     DGIST dgist;
-    int my_index = 1; // 자신의 인덱스를 설정해야 함 (0 또는 1)
+    int my_index = 1; // ? 필요한지 아닌지 모름
     int remaining_time = 120;
 
     // 현재 위치 설정
-    Point current = {4, 4};
+    Point current = {dgist.players[my_index].row, dgist.players[my_index].col};
     printf("Current location: (%d, %d)\n", current.x, current.y);
     send_action(sock, current.x, current.y, move);
+
+    // 서버로부터 DGIST 구조체 수신
+    receive_dgist(sock, &dgist);
 
     // 다음 목적지 결정
     Point next = find_next_destination(current, dgist.map);
     printf("Next destination: (%d, %d)\n", next.x, next.y);
-
-    // 서버로부터 DGIST 구조체 수신
-    receive_dgist(sock, &dgist);
 
     // 맵 출력
     printf("Received Map:\n");
@@ -145,6 +158,27 @@ int main() {
 
     close(sock);
 
+    return NULL;
+}
+
+int main() {
+    pthread_t qr_tid, server_tid;
+
+    // QR 코드 인식 스레드 시작
+    if (pthread_create(&qr_tid, NULL, qr_thread, NULL) != 0) {
+        perror("Failed to create QR thread");
+        exit(1);
+    }
+
+    // 서버 통신 스레드 시작
+    if (pthread_create(&server_tid, NULL, server_thread, NULL) != 0) {
+        perror("Failed to create server thread");
+        exit(1);
+    }
+
+    // 스레드 종료 대기
+    pthread_join(qr_tid, NULL);
+    pthread_join(server_tid, NULL);
 
     return 0;
 }

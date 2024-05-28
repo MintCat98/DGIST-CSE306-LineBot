@@ -5,12 +5,6 @@
 #include "car_control.h"
 #include "car_tracking.h"
 
-// GPIO 핀 정의
-#define Tracking_Left1 0
-#define Tracking_Left2 1
-#define Tracking_Right1 2
-#define Tracking_Right2 3
-
 void setup() {
     // Init. WiringPi
     if (wiringPiSetup() == -1) {

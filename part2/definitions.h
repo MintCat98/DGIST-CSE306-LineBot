@@ -14,6 +14,11 @@ enum Status {
 };
 
 typedef struct {
+    int x;
+    int y;
+} Point;
+
+typedef struct {
     int socket;
     struct sockaddr_in address;
     int row;

@@ -1,82 +1,118 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include "definitions.h"
 
-#define ROW 5
-#define COL 5
+#define SERVER_PORT 12345
 
-void parse_map(const char *input, int map[ROW][COL]) {
-    // 초기화
-    memset(map, 0, sizeof(int) * ROW * COL);
-
-    // 맵 데이터 추출
+void parse_map(const char *input, Node map[ROW][COL]) {
     const char *start = strstr(input, "==========PRINT MAP==========");
     if (!start) {
         printf("Invalid map data\n");
         return;
     }
+    start += strlen("==========PRINT MAP==========\n");
+    const char *end = strstr(start, "==========PRINT DONE==========");
+    if (!end) {
+        printf("Invalid map data\n");
+        return;
+    }
 
-    while (start) {
-        start += strlen("==========PRINT MAP==========\n");
-        const char *end = strstr(start, "==========PRINT DONE==========");
-        if (!end) {
-            printf("Invalid map data\n");
-            return;
+    char line[COL * 2];
+    int row = 0;
+
+    while (start < end && row < ROW) {
+        int i = 0;
+        while (*start != '\n' && start < end && i < sizeof(line) - 1) {
+            line[i++] = *start++;
+        }
+        line[i] = '\0';
+        start++;  // Move to next line
+
+        if (strlen(line) == 0) {
+            continue;
         }
 
-        // 한 줄씩 읽기
-        char line[COL * 2];  // 공백 포함하여 한 줄 최대 크기
-        int row = 0;
-
-        while (start < end && row < ROW) {
-            // 한 줄 읽기
-            int i = 0;
-            while (*start != '\n' && start < end && i < sizeof(line) - 1) {
-                line[i++] = *start++;
-            }
-            line[i] = '\0';
-            start++;  // 다음 줄로 이동
-
-            // 빈 줄 건너뛰기
-            if (strlen(line) == 0) {
-                continue;
-            }
-
-            printf("line: %s\n", line);  // 디버깅용 출력
-
-            // 라인에서 맵 데이터 추출
-            int col = 0;
-            for (int j = 0; j < strlen(line) && col < COL; j++) {
-                if (line[j] == ' ') {
-                    continue;
-                } else if (line[j] == '-') {
-                    map[row][col] = 0;  // 빈 공간
-                } else {
-                    map[row][col] = line[j] - '0';  // 숫자 변환
-                }
-                col++;
-            }
-            row++;
+        int col = 0;
+        char *token = strtok(line, " ");
+        while (token != NULL && col < COL) {
+            map[row][col].item.score = atoi(token);
+            map[row][col].item.status = (map[row][col].item.score > 0) ? item : nothing;
+            token = strtok(NULL, " ");
+            col++;
         }
-
-        start = strstr(start, "==========PRINT MAP==========");
+        row++;
     }
 }
 
-void print_map(int map[ROW][COL]) {
-    for (int i = 0; i < ROW; i++) {
+void print_received_map(Node map[ROW][COL]) {
+    for (int i = ROW-1; i >= 0; i--) {
         for (int j = 0; j < COL; j++) {
-            if (map[i][j] == 0) {
+            if (map[i][j].item.score > 0 && map[i][j].item.score < 5) {
+                printf("%d ", map[i][j].item.score);
+            }
+            else {
                 printf("- ");
-            } else {
-                printf("%d ", map[i][j]);
             }
         }
         printf("\n");
     }
 }
 
+int create_socket() {
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1) {
+        perror("socket");
+        exit(1);
+    }
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(SERVER_PORT);
+    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    if (connect(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+        perror("connect");
+        close(sock);
+        exit(1);
+    }
+    return sock;
+}
+
+void send_action(int sock, int x, int y, enum Action action) {
+    ClientAction client_action;
+    client_action.row = x;
+    client_action.col = y;
+    client_action.action = action;
+
+    if (send(sock, &client_action, sizeof(client_action), 0) == -1) {
+        perror("send");
+        close(sock);
+        exit(1);
+    }
+}
+
+void receive_dgist(int sock, DGIST* dgist) {
+    if (recv(sock, dgist, sizeof(DGIST), 0) == -1) {
+        perror("recv");
+        close(sock);
+        exit(1);
+    }
+}
+
 int main() {
+    int sock = create_socket();
+    DGIST dgist;
+
+    // 서버로부터 DGIST 구조체 수신
+    receive_dgist(sock, &dgist);
+
+    // 맵 출력
+    printf("Received Map:\n");
+    print_received_map(dgist.map);
+
+    /*
     // 아래 input을 서버에서 받아온 결과로 바꿔야 함.
     const char *input = "==========PRINT MAP==========\n"
                         "- - - - - \n"
@@ -91,6 +127,9 @@ int main() {
 
     printf("Parsed Map:\n");
     print_map(map);
+    */
+
+    close(sock);
 
     return 0;
 }

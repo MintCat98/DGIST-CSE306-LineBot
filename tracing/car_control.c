@@ -4,8 +4,6 @@
 #include <unistd.h>
 #include "car_control.h"
 
-#define CAR_ADDRESS 0x16
-
 int fd;
 
 void write_block_data(int i2c_addr, unsigned char* data, int length) {
@@ -16,8 +14,9 @@ void write_block_data(int i2c_addr, unsigned char* data, int length) {
     {
         copy[i + 1] = data[i];
     }
-    if (write(fd, copy, new_len) != new_len) {
-        printf("[I2C Error] Failed to write.\n");
+    write(fd, copy, new_len);
+    if (fd == -1) {
+        printf("Failed to write!\n");
         exit(1);
     }
     printf("Data-Write Success.\n");

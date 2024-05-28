@@ -6,10 +6,10 @@
 
 int fd;
 
-void write_block_data(int i2c_addr, unsigned char* data, int length) {
+void write_block_data(int reg, unsigned char* data, int length) {
     int new_len = length + 1;
     unsigned char copy[new_len];
-    copy[0] = i2c_addr;
+    copy[0] = reg;
     for (size_t i = 0; i < length; i++)
     {
         copy[i + 1] = data[i];
@@ -23,7 +23,7 @@ void write_block_data(int i2c_addr, unsigned char* data, int length) {
 }
 
 void Ctrl_Car(int l_dir, int l_speed, int r_dir, int r_speed) {
-    int i2c_addr;
+    int reg = 0x01;
     unsigned char data[] = { l_dir, l_speed, r_dir, r_speed };
     write_block_data(i2c_addr, data, 4);
 }

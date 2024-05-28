@@ -5,12 +5,6 @@
 #include "car_control.h"
 #include "car_tracking.h"
 
-// GPIO 핀 정의
-#define Tracking_Left1 0
-#define Tracking_Left2 1
-#define Tracking_Right1 2
-#define Tracking_Right2 3
-
 void setup() {
     // Init. WiringPi
     if (wiringPiSetup() == -1) {
@@ -47,7 +41,7 @@ void tracking_function() {
     // 1 0 X 0
     // 0 1 X 0
     if ((Tracking_Left1Value == LOW || Tracking_Left2Value == LOW) && Tracking_Right2Value == LOW) {
-        Run_Car(70, 30);
+        Run_Car(100, 50);
         delay(200); // 0.2초 대기
     }
     // Pin status => Turn Left
@@ -55,17 +49,17 @@ void tracking_function() {
     // 0 X 0 1
     // 0 X 1 0
     else if (Tracking_Left1Value == LOW && (Tracking_Right1Value == LOW || Tracking_Right2Value == LOW)) {
-        Run_Car(30, 70);
+        Run_Car(50, 100);
         delay(200); // 0.2초 대기
     }
     // Leftmost
     else if (Tracking_Left1Value == LOW) {
-        Run_Car(70, 70);
+        Run_Car(100, 100);
         delay(50); // 0.05초 대기
     }
     // Rightmost
     else if (Tracking_Right2Value == LOW) {
-        Run_Car(70, 70);
+        Run_Car(100, 100);
         delay(50); // 0.05초 대기
     }
     // 왼쪽 작은 커브 처리
@@ -80,6 +74,6 @@ void tracking_function() {
     }
     // Straight
     else if (Tracking_Left2Value == LOW && Tracking_Right1Value == LOW) {
-        Run_Car(70, 70);
+        Run_Car(100, 100);
     }
 }

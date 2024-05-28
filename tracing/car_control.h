@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-#define SENEOR_LEFT1 2 
-#define SENSOR_LEFT2 3
-#define SENSOR_RIGHT1 0
-#define SENSOR_RIGHT2 7
+#define Tracking_Left1 2 
+#define Tracking_Left2 3
+#define Tracking_Right1 0
+#define Tracking_Right2 7
 
 #define CAR_ADDRESS 0x16
 

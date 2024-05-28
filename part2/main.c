@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 
 // QR 코드 데이터 구조체 정의 (C에서 동일하게 사용)
 struct QRCodeInfo {
@@ -18,9 +20,12 @@ extern "C" {
 
 int main() {
     struct QRCodeInfo qr_info;
-    detectQRCode(&qr_info);
-
-    printf("QR Code detected at position (%d, %d) with data: %s\n", qr_info.x, qr_info.y, qr_info.data);
+    
+    while (true) {
+        detectQRCode(&qr_info);
+        printf("Current location: (%d, %d)\n", qr_info.x, qr_info.y);
+        printf("QR Code Data: %s\n", qr_info.data);
+    }
 
     return 0;
 }

@@ -5,6 +5,7 @@
 #include "car_control.h"
 #include "car_tracking.h"
 
+
 void setup() {
     // Init. WiringPi
     if (wiringPiSetup() == -1) {
@@ -41,7 +42,7 @@ void tracking_function() {
     // 1 0 X 0
     // 0 1 X 0
     if ((Tracking_Left1Value == LOW || Tracking_Left2Value == LOW) && Tracking_Right2Value == LOW) {
-        Run_Car(70, 30);
+        Run_Car(70, -40);
         delay(200); // 0.2초 대기
     }
     // Pin status => Turn Left
@@ -49,27 +50,27 @@ void tracking_function() {
     // 0 X 0 1
     // 0 X 1 0
     else if (Tracking_Left1Value == LOW && (Tracking_Right1Value == LOW || Tracking_Right2Value == LOW)) {
-        Run_Car(30, 70);
+        Run_Car(-40, 70);
         delay(200); // 0.2초 대기
     }
     // Leftmost
     else if (Tracking_Left1Value == LOW) {
-        Run_Car(70, 70);
+        Run_Car(-70, 70);
         delay(50); // 0.05초 대기
     }
     // Rightmost
     else if (Tracking_Right2Value == LOW) {
-        Run_Car(70, 70);
+        Run_Car(70, -70);
         delay(50); // 0.05초 대기
     }
     // 왼쪽 작은 커브 처리
     else if (Tracking_Left2Value == LOW && Tracking_Right1Value == HIGH) {
-        Run_Car(60, 60);
+        Run_Car(-60, 60);
         delay(20); // 0.02초 대기
     }
     // 오른쪽 작은 커브 처리
     else if (Tracking_Left2Value == HIGH && Tracking_Right1Value == LOW) {
-        Run_Car(60, 60);
+        Run_Car(60, -60);
         delay(20); // 0.02초 대기
     }
     // Straight

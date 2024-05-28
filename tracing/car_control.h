@@ -3,6 +3,13 @@
 
 #include <stdint.h>
 
+#define Tracking_Left1 2 
+#define Tracking_Left2 3
+#define Tracking_Right1 0
+#define Tracking_Right2 7
+
+#define CAR_ADDRESS 0x16
+
 extern int fd;
 
 void write_block_data(int i2c_addr, unsigned char* data, int length);

@@ -26,7 +26,7 @@ extern "C" {
         return false;
     }
 
-    void detectQRCode(QRCodeInfo *qr_info) {
+    void detectQRCode(QRCodeInfo *qr_info, bool *qr_detected) {
         VideoCapture camera(0);
         if (!camera.isOpened()) {
             cerr << "Error: Unable to open the camera" << endl;
@@ -86,6 +86,7 @@ extern "C" {
                     sscanf(barcode_data.c_str(), "%d%d", &qr_info->x, &qr_info->y);
                     strncpy(qr_info->data, barcode_data.c_str(), sizeof(qr_info->data) - 1);
                     qr_info->data[sizeof(qr_info->data) - 1] = '\0';
+                    *qr_detected = true;
                     destroyAllWindows();  // QR 코드 인식을 한 번만 수행하고 종료
                     return;
                 }

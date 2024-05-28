@@ -13,18 +13,23 @@ struct QRCodeInfo {
 #ifdef __cplusplus
 extern "C" {
 #endif
-    void detectQRCode(struct QRCodeInfo *qr_info);
+    void detectQRCode(struct QRCodeInfo *qr_info, bool *qr_detected);
 #ifdef __cplusplus
 }
 #endif
 
 int main() {
     struct QRCodeInfo qr_info;
-    
+    bool qr_detected = false;
+
     while (true) {
-        detectQRCode(&qr_info);
-        printf("Current location: (%d, %d)\n", qr_info.x, qr_info.y);
-        printf("QR Code Data: %s\n", qr_info.data);
+        detectQRCode(&qr_info, &qr_detected);
+        
+        if (qr_detected) {
+            printf("Current location: (%d, %d)\n", qr_info.x, qr_info.y);
+            printf("QR Code Data: %s\n", qr_info.data);
+            qr_detected = false; // Reset the flag for the next detection
+        }
     }
 
     return 0;

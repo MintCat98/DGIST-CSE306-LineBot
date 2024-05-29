@@ -30,13 +30,7 @@ void setup() {
     printf("Setup all clear!\n");
 }
 
-void move_forward() {
-    // Set up Sensors
-    int Tracking_Left1Value = digitalRead(Tracking_Left1);
-    int Tracking_Left2Value = digitalRead(Tracking_Left2);
-    int Tracking_Right1Value = digitalRead(Tracking_Right1);
-    int Tracking_Right2Value = digitalRead(Tracking_Right2);
-
+void move_forward(int Tracking_Left1Value, int Tracking_Left2Value, int Tracking_Right1Value, int Tracking_Right2Value) {
     // Pin status => Turn Right
     // 0 0 X 0
     // 1 0 X 0
@@ -101,11 +95,18 @@ int stop_signal(int left_sensor1, int right_sensor2)
     return STOP_SIGNAL;
 }
 
-void tracking_function(int command) {
+int tracking_function(int command) {
     // Must get a `command` from the client server first
+
+    // Set up Sensors
+    int Tracking_Left1Value = digitalRead(Tracking_Left1);
+    int Tracking_Left2Value = digitalRead(Tracking_Left2);
+    int Tracking_Right1Value = digitalRead(Tracking_Right1);
+    int Tracking_Right2Value = digitalRead(Tracking_Right2);
+
     if (command == 1)
     { // Forward
-        move_forward();
+        move_forward(Tracking_Left1Value, Tracking_Left2Value, Tracking_Right1Value, Tracking_Right2Value);
     }
     else if (command == 2)
     { // Left
@@ -115,4 +116,7 @@ void tracking_function(int command) {
     { // Right 
         move_right();
     }
+
+    // Check and send STOP_SIGNAL
+    return stop_signal(Tracking_Left1Value, Tracking_Right2Value);
 }

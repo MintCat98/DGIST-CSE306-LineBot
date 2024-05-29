@@ -43,6 +43,8 @@ void print_received_map(Node map[ROW][COL]) {
 
 Point find_next_destination(Node map[ROW][COL]) {
     int directions[3][2];
+
+    // 점수가 같을 때 우선 순위: 앞, 오른쪽, 왼쪽
     switch (robot.direction) {
         case NORTH:
             directions[0][0] = 0; directions[0][1] = 1; // 앞으로
@@ -87,7 +89,7 @@ Point find_next_destination(Node map[ROW][COL]) {
 }
 
 // 로봇의 이동 명령을 결정하는 함수
-int order(Point destination) {
+int decide_movement(Point destination) {
     // 목적지가 로봇의 현재 위치에 상대적으로 어디에 있는지 계산
     int dx = destination.x - robot.x; // 동서 방향
     int dy = destination.y - robot.y; // 남북 방향
@@ -184,7 +186,7 @@ void* qr_thread(void* arg) {
             // 다음 목적지 선택
             next = find_next_destination(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
-            int order = order(next);
+            int order = decide_movement(next);
             update_direction(order);
             printf("New direction: %d \n", robot.direction);
             
@@ -235,9 +237,13 @@ int main(int argc, char *argv[]) {
     int robot_index = 1; // TODO: 경기에 따라 다름 이거 설정할 수 있게 하기
 
     if (robot_index == 1) {
-        robot = {0, 0, 0, EAST};
+        robot.x = 0;
+        robot.y = 0;
+        robot.direction = EAST;
     } else {
-        robot = {4, 4, 0, WEST};
+        robot.x = 4;
+        robot.y = 4;
+        robot.direction = WEST;
     }
     
     // QR 코드 인식 스레드 시작

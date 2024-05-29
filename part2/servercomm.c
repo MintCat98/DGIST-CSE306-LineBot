@@ -6,22 +6,29 @@
 #include <sys/socket.h>
 #include "definitions.h"
 
+int create_socket(const char *server_ip, int server_port) {
+    int sock;
+    struct sockaddr_in server_addr;
 
-int create_socket() {
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    // 소켓 생성
+    sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1) {
         perror("socket");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
-    struct sockaddr_in server_addr;
+
+    // 서버 주소 설정
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(SERVER_PORT);
-    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    server_addr.sin_port = htons(server_port);
+    server_addr.sin_addr.s_addr = inet_addr(server_ip);
+
+    // 서버에 연결
     if (connect(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         perror("connect");
         close(sock);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
+
     return sock;
 }
 

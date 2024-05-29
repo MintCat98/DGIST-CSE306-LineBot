@@ -3,27 +3,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include <pthread.h>
+#include <time.h>
+#include <math.h>
 #include "definitions.h"
 
 // C++에서 정의된 함수 선언
 #ifdef __cplusplus
 extern "C" {
 #endif
-    void detectQRCode(struct QRCodeInfo *qr_info, bool *qr_detected);
+    //void detectQRCode(struct QRCodeInfo *qr_info, bool *qr_detected);
 #ifdef __cplusplus
 }
 #endif
 
+// 글로벌 변수와 뮤텍스 정의
+DGIST global_dgist;
+int sock;
+pthread_mutex_t dgist_mutex = PTHREAD_MUTEX_INITIALIZER;
+Point current, next;
+
+// 디버깅용
 void print_received_map(Node map[ROW][COL]) {
     for (int i = ROW-1; i >= 0; i--) {
         for (int j = 0; j < COL; j++) {
             if (map[i][j].item.score > 0 && map[i][j].item.score < 5) {
                 printf("%d ", map[i][j].item.score);
-            }
-            else {
+            } else {
                 printf("- ");
             }
         }
@@ -76,22 +84,19 @@ Point find_next_destination(Point current, Node map[ROW][COL]) {
     return best_point;
 }
 
-int should_place_bomb(DGIST* dgist, int my_index, int remaining_time) {
-    int my_x = dgist->players[my_index].row;
-    int my_y = dgist->players[my_index].col;
+int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
+    int my_x = current.x;
+    int my_y = current.y;
     int opponent_index = (my_index == 0) ? 1 : 0;
     int opponent_x = dgist->players[opponent_index].row;
     int opponent_y = dgist->players[opponent_index].col;
 
-    if (abs(my_x - opponent_x) + abs(my_y - opponent_y) <= 2) {
+    // 적과의 거리가 2 이하일 경우에 폭탄 설치
+    if (sqrt(pow(my_x - opponent_x, 2) + pow(my_y - opponent_y, 2)) <= 2) {
         return 1;
     }
 
-    if (dgist->map[my_x][my_y].item.status == item && dgist->map[my_x][my_y].item.score > 1) {
-        return 1;
-    }
-
-    if (remaining_time < 30) {
+    if (elapsed_time >= 90) { // 게임 시작 후 90초 이후에는 폭탄 설치
         return 1;
     }
 
@@ -101,71 +106,80 @@ int should_place_bomb(DGIST* dgist, int my_index, int remaining_time) {
 void* qr_thread(void* arg) {
     struct QRCodeInfo qr_info;
     bool qr_detected = false;
+    time_t start_time = *(time_t*)arg;
 
-    printf("qr thread started!\n");
-    
     while (true) {
-        /*
-        detectQRCode(&qr_info, &qr_detected);
+        //detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
             printf("QR Code Detected:\n");
-            printf("Current location: (%d, %d)\n", qr_info.x, qr_info.y);
-            printf("QR Code Data: %s\n", qr_info.data);
+            current.x = qr_info.x;
+            current.y = qr_info.y;
+            printf("Current location: (%d, %d)\n", current.x, current.y);
             qr_detected = false; // Reset the flag for the next detection
+
+            // 뮤텍스를 사용하여 글로벌 데이터 접근
+            pthread_mutex_lock(&dgist_mutex);
+            double elapsed_time = difftime(time(NULL), start_time);
+
+            // 폭탄 설치 여부 결정
+            if (should_place_bomb(&global_dgist, 1, elapsed_time)) {
+                printf("Place a bomb at (%d, %d)\n", current.x, current.y);
+                send_action(sock, current.x, current.y, setBomb);
+            } else {
+                printf("Do not place a bomb at (%d, %d)\n", current.x, current.y);
+                send_action(sock, current.x, current.y, move);
+            }
+
+            // 다음 목적지 선택
+            next = find_next_destination(current, global_dgist.map);
+            printf("Next destination: (%d, %d)\n", next.x, next.y);
+
+            pthread_mutex_unlock(&dgist_mutex);
         }
 
         usleep(100000); // 0.1초 대기
-        */
-       sleep(10);
-       break;
     }
-    
-    printf("qr thread ended!\n");
+
     return NULL;
 }
 
 void* server_thread(void* arg) {
-    int sock = create_socket();
     DGIST dgist;
-    int my_index = 1; // ? 필요한지 아닌지 모름
-    int remaining_time = 120;
 
-    // 현재 위치 설정
-    Point current = {dgist.players[my_index].row, dgist.players[my_index].col};
-    printf("Current location: (%d, %d)\n", current.x, current.y);
-    send_action(sock, current.x, current.y, move);
+    while (true) {
+        // 서버로부터 DGIST 구조체 수신
+        receive_dgist(sock, &dgist);
 
-    // 서버로부터 DGIST 구조체 수신
-    receive_dgist(sock, &dgist);
+        // 뮤텍스를 사용하여 글로벌 데이터 업데이트
+        pthread_mutex_lock(&dgist_mutex);
+        global_dgist = dgist;
+        pthread_mutex_unlock(&dgist_mutex);
 
-    // 다음 목적지 결정
-    Point next = find_next_destination(current, dgist.map);
-    printf("Next destination: (%d, %d)\n", next.x, next.y);
-
-    // 맵 출력
-    printf("Received Map:\n");
-    print_received_map(dgist.map);
-
-    // 폭탄 설치 여부 결정
-    if (should_place_bomb(&dgist, my_index, remaining_time)) {
-        printf("Place a bomb at (%d, %d)\n", dgist.players[my_index].row, dgist.players[my_index].col);
-        send_action(sock, dgist.players[my_index].row, dgist.players[my_index].col, setBomb);
-    } else {
-        printf("Do not place a bomb at (%d, %d)\n", dgist.players[my_index].row, dgist.players[my_index].col);
-        send_action(sock, dgist.players[my_index].row, dgist.players[my_index].col, move);
+        usleep(100000); // 0.1초 대기
     }
-
-    close(sock);
 
     return NULL;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <server_ip> <server_port>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    const char *server_ip = argv[1];
+    int server_port = atoi(argv[2]);
+
     pthread_t qr_tid, server_tid;
+    time_t start_time;
+    time(&start_time);
+
+    // 소켓 생성
+    sock = create_socket(server_ip, server_port);
 
     // QR 코드 인식 스레드 시작
-    if (pthread_create(&qr_tid, NULL, qr_thread, NULL) != 0) {
+    if (pthread_create(&qr_tid, NULL, qr_thread, &start_time) != 0) {
         perror("Failed to create QR thread");
         exit(1);
     }
@@ -179,6 +193,10 @@ int main() {
     // 스레드 종료 대기
     pthread_join(qr_tid, NULL);
     pthread_join(server_tid, NULL);
+
+    // 메인 함수 종료 시 소켓 닫기
+    close(sock);
+    printf("Socket closed in main.\n");
 
     return 0;
 }

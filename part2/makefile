@@ -3,14 +3,14 @@ CXX = g++
 CC = gcc
 CXXFLAGS = `pkg-config --cflags opencv4 zbar`
 CFLAGS = `pkg-config --cflags opencv4 zbar`
-LDFLAGS = `pkg-config --libs opencv4 zbar`
+LDFLAGS = `pkg-config --libs opencv4 zbar` -lpthread -lm
 
 # 타겟 실행 파일 이름
 TARGET = runfile
 
 # 소스 파일 및 오브젝트 파일 정의
 CXXSRCS = qr_recognition.cpp
-CSRCS = main.c
+CSRCS = main.c servercomm.c
 CXXOBJS = $(CXXSRCS:.cpp=.o)
 COBJS = $(CSRCS:.c=.o)
 OBJS = $(CXXOBJS) $(COBJS)

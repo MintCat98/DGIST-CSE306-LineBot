@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <pthread.h>
 
 #define ROW 5
@@ -65,6 +64,9 @@ typedef struct {
 int create_socket();
 void send_action(int sock, int x, int y, enum Action action);
 void receive_dgist(int sock, DGIST* dgist);
-void detectQRCode(struct QRCodeInfo *qr_info, bool *qr_detected);
-void* qr_thread(void* arg);
-void* server_thread(void* arg);
+void detectQRCode(struct QRCodeInfo *qr_info, int *qr_detected);
+
+extern DGIST global_dgist;
+extern pthread_mutex_t dgist_mutex;
+extern Point current;
+extern Point next;

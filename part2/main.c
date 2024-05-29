@@ -37,6 +37,7 @@ void print_received_map(Node map[ROW][COL]) {
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 Point find_next_destination(Point current, Node map[ROW][COL]) {
@@ -154,6 +155,7 @@ void* server_thread(void* arg) {
         // 뮤텍스를 사용하여 글로벌 데이터 업데이트
         pthread_mutex_lock(&dgist_mutex);
         global_dgist = dgist;
+        print_received_map(global_dgist.map);
         pthread_mutex_unlock(&dgist_mutex);
 
         usleep(100000); // 0.1초 대기

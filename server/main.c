@@ -42,17 +42,40 @@ void print_received_map(Node map[ROW][COL]) {
 }
 
 Point find_next_destination(Node map[ROW][COL]) {
-    int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-    Point best_point = {robot.x, robot.y};
-    int best_score = -1;
+    int directions[3][2];
+    switch (robot.direction) {
+        case NORTH:
+            directions[0][0] = 0; directions[0][1] = 1; // 앞으로
+            directions[1][0] = 1;  directions[1][1] = 0; // 오른쪽
+            directions[2][0] = -1;  directions[2][1] = 0; // 왼쪽
+            break;
+        case SOUTH:
+            directions[0][0] = 0;  directions[0][1] = -1; // 앞으로
+            directions[1][0] = -1; directions[1][1] = 0; // 오른쪽
+            directions[2][0] = 1;  directions[2][1] = 0; // 왼쪽
+            break;
+        case EAST:
+            directions[0][0] = 1;  directions[0][1] = 0; // 앞으로
+            directions[1][0] = 0;  directions[1][1] = -1; // 오른쪽
+            directions[2][0] = 0;  directions[2][1] = 1; // 왼쪽
+            break;
+        case WEST:
+            directions[0][0] = -1;  directions[0][1] = 0; // 앞으로
+            directions[1][0] = 0;  directions[1][1] = 1; // 오른쪽
+            directions[2][0] = 0; directions[2][1] = -1; // 왼쪽
+            break;
+    }
 
-    // 거리가 1인 곳 확인
-    for (int i = 0; i < 4; i++) {
+    Point best_point = {robot.x, robot.y};
+    int best_score = -1; // TODO: 폭탄의 최저 점수여야 함.
+
+    // 로봇을 기준으로 좌우와 앞 3가지 방향 확인
+    for (int i = 0; i < 3; i++) {
         int new_x = robot.x + directions[i][0];
         int new_y = robot.y + directions[i][1];
 
         if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
-            int score = map[new_x][new_y].item.score;
+            int score = map[new_y][new_x].item.score;
             if (score > best_score) {
                 best_score = score;
                 best_point.x = new_x;
@@ -95,10 +118,28 @@ int order(Point destination) {
     return 0; // 이동하지 않음
 }
 
+void update_direction(int action) {
+    if (action == 2) { // 왼쪽으로 회전
+        switch (robot.direction) {
+            case NORTH: robot.direction = WEST; break;
+            case SOUTH: robot.direction = EAST; break;
+            case EAST:  robot.direction = NORTH; break;
+            case WEST:  robot.direction = SOUTH; break;
+        }
+    } else if (action == 3) { // 오른쪽으로 회전
+        switch (robot.direction) {
+            case NORTH: robot.direction = EAST; break;
+            case SOUTH: robot.direction = WEST; break;
+            case EAST:  robot.direction = SOUTH; break;
+            case WEST:  robot.direction = NORTH; break;
+        }
+    }
+}
+
 int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
     int opponent_index = (my_index == 0) ? 1 : 0;
-    int opponent_x = dgist->players[opponent_index].row;
-    int opponent_y = dgist->players[opponent_index].col;
+    int opponent_x = dgist->players[opponent_index].col;
+    int opponent_y = dgist->players[opponent_index].row;
 
     // 적과의 거리가 2 이하일 경우에 폭탄 설치
     if (sqrt(pow(robot.x - opponent_x, 2) + pow(robot.y - opponent_y, 2)) <= 2) {
@@ -142,9 +183,11 @@ void* qr_thread(void* arg) {
 
             // 다음 목적지 선택
             next = find_next_destination(global_dgist.map);
-            int order = order(next);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
-
+            int order = order(next);
+            update_direction(order);
+            printf("New direction: %d \n", robot.direction);
+            
             pthread_mutex_unlock(&dgist_mutex);
         }
 

@@ -1,7 +1,23 @@
 #ifndef TRACKING_FUNCTION_H
 #define TRACKING_FUNCTION_H
 
+#define Tracking_Left1 2 
+#define Tracking_Left2 3
+#define Tracking_Right1 0
+#define Tracking_Right2 7
+
+#define CAR_ADDRESS 0x16
+
 void setup();
-void tracking_function();
+
+void move_forward();
+
+void move_left();
+
+void move_right();
+
+int stop_signal(int left_sensor1, int right_sensor2);
+
+void tracking_function(int command);
 
 #endif

@@ -30,7 +30,7 @@ void setup() {
     printf("Setup all clear!\n");
 }
 
-void tracking_function() {
+void move_forward() {
     // Set up Sensors
     int Tracking_Left1Value = digitalRead(Tracking_Left1);
     int Tracking_Left2Value = digitalRead(Tracking_Left2);
@@ -76,5 +76,43 @@ void tracking_function() {
     // Straight
     else if (Tracking_Left2Value == LOW && Tracking_Right1Value == LOW) {
         Run_Car(70, 70);
+    }
+}
+
+void move_left() {
+    Run_Car(-35, 80);
+    delay(200);
+}
+
+void move_right() {
+    Run_Car(80, -35);
+    delay(200);
+}
+
+int stop_signal(int left_sensor1, int right_sensor2)
+{
+    int STOP_SIGNAL = 0;
+
+    if (left_sensor1 == 1 || right_sensor2 == 1)
+    {
+        STOP_SIGNAL = 1;
+    }
+
+    return STOP_SIGNAL;
+}
+
+void tracking_function(int command) {
+    // Must get a `command` from the client server first
+    if (command == 1)
+    { // Forward
+        move_forward();
+    }
+    else if (command == 2)
+    { // Left
+        move_left();
+    }
+    else if (command == 3)
+    { // Right 
+        move_right();
     }
 }

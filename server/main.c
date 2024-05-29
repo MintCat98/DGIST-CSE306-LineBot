@@ -24,6 +24,7 @@ DGIST global_dgist;
 int sock;
 pthread_mutex_t dgist_mutex = PTHREAD_MUTEX_INITIALIZER;
 Point current, next;
+Robot robot;
 
 // 디버깅용
 void print_received_map(Node map[ROW][COL]) {
@@ -40,15 +41,15 @@ void print_received_map(Node map[ROW][COL]) {
     printf("\n");
 }
 
-Point find_next_destination(Point current, Node map[ROW][COL]) {
+Point find_next_destination(Node map[ROW][COL]) {
     int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-    Point best_point = current;
+    Point best_point = {robot.x, robot.y};
     int best_score = -1;
 
     // 거리가 1인 곳 확인
     for (int i = 0; i < 4; i++) {
-        int new_x = current.x + directions[i][0];
-        int new_y = current.y + directions[i][1];
+        int new_x = robot.x + directions[i][0];
+        int new_y = robot.y + directions[i][1];
 
         if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
             int score = map[new_x][new_y].item.score;
@@ -59,41 +60,48 @@ Point find_next_destination(Point current, Node map[ROW][COL]) {
             }
         }
     }
-
-    // 거리가 1인 곳에서 점수가 없다면 거리가 2인 곳 확인
-    if (best_score <= 0) {
-        best_score = -1;  // 초기화
-        for (int i = -2; i <= 2; i++) {
-            for (int j = -2; j <= 2; j++) {
-                if (abs(i) + abs(j) == 2) {
-                    int new_x = current.x + i;
-                    int new_y = current.y + j;
-
-                    if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
-                        int score = map[new_x][new_y].item.score;
-                        if (score > best_score) {
-                            best_score = score;
-                            best_point.x = new_x;
-                            best_point.y = new_y;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     return best_point;
 }
 
+// 로봇의 이동 명령을 결정하는 함수
+int order(Point destination) {
+    // 목적지가 로봇의 현재 위치에 상대적으로 어디에 있는지 계산
+    int dx = destination.x - robot.x; // 동서 방향
+    int dy = destination.y - robot.y; // 남북 방향
+
+    switch (robot.direction) {
+        case NORTH:
+            if (dy > 0 && dx == 0) return 1; // 앞으로
+            if (dx < 0 && dy == 0) return 2; // 왼쪽으로 회전
+            if (dx > 0 && dy == 0) return 3; // 오른쪽으로 회전
+            break;
+        case SOUTH:
+            if (dy < 0 && dx == 0) return 1; // 앞으로
+            if (dx > 0 && dy == 0) return 2; // 왼쪽으로 회전
+            if (dx < 0 && dy == 0) return 3; // 오른쪽으로 회전
+            break;
+        case EAST:
+            if (dx > 0 && dy == 0) return 1; // 앞으로
+            if (dy < 0 && dx == 0) return 2; // 왼쪽으로 회전
+            if (dy > 0 && dx == 0) return 3; // 오른쪽으로 회전
+            break;
+        case WEST:
+            if (dx < 0 && dy == 0) return 1; // 앞으로
+            if (dy > 0 && dx == 0) return 2; // 왼쪽으로 회전
+            if (dy < 0 && dx == 0) return 3; // 오른쪽으로 회전
+            break;
+    }
+
+    return 0; // 이동하지 않음
+}
+
 int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
-    int my_x = current.x;
-    int my_y = current.y;
     int opponent_index = (my_index == 0) ? 1 : 0;
     int opponent_x = dgist->players[opponent_index].row;
     int opponent_y = dgist->players[opponent_index].col;
 
     // 적과의 거리가 2 이하일 경우에 폭탄 설치
-    if (sqrt(pow(my_x - opponent_x, 2) + pow(my_y - opponent_y, 2)) <= 2) {
+    if (sqrt(pow(robot.x - opponent_x, 2) + pow(robot.y - opponent_y, 2)) <= 2) {
         return 1;
     }
 
@@ -114,9 +122,9 @@ void* qr_thread(void* arg) {
         
         if (qr_detected) {
             printf("QR Code Detected:\n");
-            current.x = qr_info.x;
-            current.y = qr_info.y;
-            printf("Current location: (%d, %d)\n", current.x, current.y);
+            robot.x = qr_info.x;
+            robot.y = qr_info.y;
+            printf("Current location: (%d, %d)\n", robot.x, robot.y);
             qr_detected = false; // Reset the flag for the next detection
 
             // 뮤텍스를 사용하여 글로벌 데이터 접근
@@ -125,15 +133,16 @@ void* qr_thread(void* arg) {
 
             // 폭탄 설치 여부 결정
             if (should_place_bomb(&global_dgist, 1, elapsed_time)) {
-                printf("Place a bomb at (%d, %d)\n", current.x, current.y);
-                send_action(sock, current.x, current.y, setBomb);
+                printf("Place a bomb at (%d, %d)\n", robot.x, robot.y);
+                send_action(sock, robot.x, robot.y, setBomb);
             } else {
-                printf("Do not place a bomb at (%d, %d)\n", current.x, current.y);
-                send_action(sock, current.x, current.y, move);
+                printf("Do not place a bomb at (%d, %d)\n", robot.x, robot.y);
+                send_action(sock, robot.x, robot.y, move);
             }
 
             // 다음 목적지 선택
-            next = find_next_destination(current, global_dgist.map);
+            next = find_next_destination(global_dgist.map);
+            int order = order(next);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
 
             pthread_mutex_unlock(&dgist_mutex);
@@ -180,6 +189,14 @@ int main(int argc, char *argv[]) {
     // 소켓 생성
     sock = create_socket(server_ip, server_port);
 
+    int robot_index = 1; // TODO: 경기에 따라 다름 이거 설정할 수 있게 하기
+
+    if (robot_index == 1) {
+        robot = {0, 0, 0, EAST};
+    } else {
+        robot = {4, 4, 0, WEST};
+    }
+    
     // QR 코드 인식 스레드 시작
     if (pthread_create(&qr_tid, NULL, qr_thread, &start_time) != 0) {
         perror("Failed to create QR thread");

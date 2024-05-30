@@ -72,15 +72,22 @@ Point find_next_destination(Node map[ROW][COL]) {
     }
 
     Point best_point = {robot.x, robot.y};
-    int best_score = -1; // TODO: 폭탄의 최저 점수여야 함.
+    int best_score = -3; // TODO: 폭탄의 최저 점수여야 함.
 
-    // 로봇을 기준으로 좌우와 앞 3가지 방향 확인
     for (int i = 0; i < 3; i++) {
         int new_x = robot.x + directions[i][0];
         int new_y = robot.y + directions[i][1];
 
         if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
-            int score = map[new_y][new_x].item.score;
+            int score;
+            if (map[new_y][new_x].item.status == 1) {
+                score = map[new_y][new_x].item.score;
+            } else if (map[new_y][new_x].item.status == 0) {
+                score = 0;
+            } else if (map[new_y][new_x].item.status == 2) {
+                score = -2;
+            }
+
             if (score > best_score) {
                 best_score = score;
                 best_point.x = new_x;
@@ -222,13 +229,14 @@ void* server_thread(void* arg) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <server_ip> <server_port>\n", argv[0]);
+    if (argc != 4) {
+        fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot >\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     const char *server_ip = argv[1];
     int server_port = atoi(argv[2]);
+    int robot_index = atoi(argv[3]); 
 
     pthread_t qr_tid, server_tid;
     time_t start_time;
@@ -236,8 +244,6 @@ int main(int argc, char *argv[]) {
 
     // 소켓 생성
     sock = create_socket(server_ip, server_port);
-
-    int robot_index = 1; // TODO: 경기에 따라 다름 이거 설정할 수 있게 하기
 
     if (robot_index == 1) {
         robot.x = 0;

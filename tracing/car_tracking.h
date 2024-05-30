@@ -16,8 +16,8 @@ void move_left();
 
 void move_right();
 
-int stop_signal(int left_sensor1, int right_sensor2);
+int intersection_signal(int l1, int l2, int r1, int r2);
 
-int tracking_function(int command);
+void tracking_function();
 
 #endif

@@ -3,20 +3,15 @@
 #include "car_control.h"
 #include "car_tracking.h"
 
+/*
+    나중에 진짜 main.c 만들 때 어디에서 global COMMAND 선언할 건지 결정하기
+    decide_movement() 함수를 통해 globally update될 거임!!!
+*/
+int COMMAND = 0;
+
 int main() {
     setup();
-
-    while (1) {
-        int COMMAND = 1;    // command will be one of 0 ~ 3
-        int STOP_SIGNAL = tracking_function(COMMAND);
-        delay(100);
-        
-        while (STOP_SIGNAL == 0)
-        {
-            move_forward();
-            delay(100);
-        }
-    }
+    tracking_function();
     
     return 0;
 }

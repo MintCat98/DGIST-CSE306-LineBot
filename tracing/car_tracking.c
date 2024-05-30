@@ -83,40 +83,57 @@ void move_right() {
     delay(200);
 }
 
-int stop_signal(int left_sensor1, int right_sensor2)
+int intersection_signal(int l1, int l2, int r1, int r2)
 {
-    int STOP_SIGNAL = 0;
-
-    if (left_sensor1 == 1 || right_sensor2 == 1)
-    {
-        STOP_SIGNAL = 1;
-    }
-
-    return STOP_SIGNAL;
+    // Return 1 if [LLLH] or [HLLL] or [LLLL]
+    return (l1 == LOW && l2 == LOW && r1 == LOW) || (l2 == LOW && r1 == LOW && r2 == LOW);
 }
 
-int tracking_function(int command) {
-    // Must get a `command` from the client server first
+void tracking_function()
+{
+    while (1) {
+        // Set up Sensors
+        int Tracking_Left1Value = digitalRead(Tracking_Left1);
+        int Tracking_Left2Value = digitalRead(Tracking_Left2);
+        int Tracking_Right1Value = digitalRead(Tracking_Right1);
+        int Tracking_Right2Value = digitalRead(Tracking_Right2);
 
-    // Set up Sensors
-    int Tracking_Left1Value = digitalRead(Tracking_Left1);
-    int Tracking_Left2Value = digitalRead(Tracking_Left2);
-    int Tracking_Right1Value = digitalRead(Tracking_Right1);
-    int Tracking_Right2Value = digitalRead(Tracking_Right2);
+        // When it arrives at an intersection, stop_signal() returns 1.
+        int INTERSECTION = intersection_signal(Tracking_Left1Value, Tracking_Right2Value);
 
-    if (command == 1)
-    { // Forward
+        // INTERSECTION => Follow the COMMAND
+        if (INTERSECTION) {
+            switch (COMMAND) {
+
+                // Left-Rotation
+            case 2:
+                while (1) {
+                    // Left-Rotation until [HLLH]
+                    // If [HLLH] => move_forward()
+                    if (Tracking_Left1Value == HIGH && Tracking_Left2Value == LOW && Tracking_Right1Value == LOW && Tracking_Right2Value == HIGH) {
+                        break;
+                    }
+                    move_left();
+                }
+                break;
+
+                // Right-Rotation
+            case 3:
+                while (1) {
+                    if (Tracking_Left1Value == HIGH && Tracking_Left2Value == LOW && Tracking_Right1Value == LOW && Tracking_Right2Value == HIGH) {
+                        break;
+                    }
+                    move_right();
+                }
+                break;
+
+                // Forward will use outer move_forward()
+            default:
+                break;
+            }
+        }
+
+        // ~INTERSECTION => move_forward
         move_forward(Tracking_Left1Value, Tracking_Left2Value, Tracking_Right1Value, Tracking_Right2Value);
     }
-    else if (command == 2)
-    { // Left
-        move_left();
-    }
-    else if (command == 3)
-    { // Right 
-        move_right();
-    }
-
-    // Check and send STOP_SIGNAL
-    return stop_signal(Tracking_Left1Value, Tracking_Right2Value);
 }

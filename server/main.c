@@ -30,11 +30,19 @@ Robot robot;
 void print_received_map(Node map[ROW][COL]) {
     for (int i = ROW-1; i >= 0; i--) {
         for (int j = 0; j < COL; j++) {
-            if (map[i][j].item.score > 0 && map[i][j].item.score < 5) {
-                printf("%d ", map[i][j].item.score);
-            } else {
+            int status = map[i][j].item.status;
+            if (status == 1) {
+                if (map[i][j].item.score > 0 && map[i][j].item.score < 5) {
+                    printf("%d ", map[i][j].item.score);
+                } else {
+                    //printf("- ");
+                }
+            } else if (status == 0) {
                 printf("- ");
+            } else if (status == 2) {
+                printf("x%d", map[i][j].item.score);
             }
+            
         }
         printf("\n");
     }
@@ -157,18 +165,18 @@ int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
 
 void* qr_thread(void* arg) {
     struct QRCodeInfo qr_info;
-    bool qr_detected = false;
+    int qr_detected = 0;
     time_t start_time = *(time_t*)arg;
 
     while (true) {
-        //detectQRCode(&qr_info, &qr_detected);
+        detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
-            printf("QR Code Detected:\n");
+            printf("QR Code Detected: %s\n", qr_info.data);
             robot.x = qr_info.x;
             robot.y = qr_info.y;
             printf("Current location: (%d, %d)\n", robot.x, robot.y);
-            qr_detected = false; // Reset the flag for the next detection
+            qr_detected = 0; // Reset the flag for the next detection
 
             // 뮤텍스를 사용하여 글로벌 데이터 접근
             pthread_mutex_lock(&dgist_mutex);

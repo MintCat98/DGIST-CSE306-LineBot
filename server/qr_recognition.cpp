@@ -26,6 +26,18 @@ extern "C" {
         return false;
     }
 
+    void parseBarcodeData(const string& barcode_data, QRCodeInfo *qr_info) {
+    if (barcode_data.length() == 2) {
+        qr_info->x = barcode_data[0] - '0'; 
+        qr_info->y = barcode_data[1] - '0'; 
+    } else {
+        // 잘못된 입력 처리
+        cerr << "Invalid barcode data length" << endl;
+        qr_info->x = 0;
+        qr_info->y = 0;
+    }
+}
+
     void detectQRCode(QRCodeInfo *qr_info, bool *qr_detected) {
         VideoCapture camera(0);
         if (!camera.isOpened()) {
@@ -83,7 +95,7 @@ extern "C" {
                 cout << "[INFO] Found " << barcode_type << " barcode: " << barcode_data << endl;
 
                 if (is_new_code(barcode_data)) {
-                    sscanf(barcode_data.c_str(), "%d%d", &qr_info->x, &qr_info->y);
+                    parseBarcodeData(barcode_data.c_str(), qr_info);
                     strncpy(qr_info->data, barcode_data.c_str(), sizeof(qr_info->data) - 1);
                     qr_info->data[sizeof(qr_info->data) - 1] = '\0';
                     *qr_detected = true;

@@ -80,15 +80,16 @@ Point find_next_destination(Node map[ROW][COL]) {
 
         if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
             int score;
-            if (map[new_y][new_x].item.status == 1) {
+            int status = map[new_y][new_x].item.status;
+            if (status == 1) {
                 score = map[new_y][new_x].item.score;
-            } else if (map[new_y][new_x].item.status == 0) {
+            } else if (status == 0) {
                 score = 0;
-            } else if (map[new_y][new_x].item.status == 2) {
+            } else if (status == 2) {
                 score = -2;
             }
 
-            printf("(%d, %d): %d", new_x, new_y, score);
+            printf("(%d, %d) status(%d): %d", new_x, new_y, status, score);
 
             if (score > best_score) {
                 best_score = score;
@@ -233,7 +234,7 @@ void* server_thread(void* arg) {
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
-        fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot >\n", argv[0]);
+        fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot index>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 

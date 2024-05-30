@@ -12,12 +12,12 @@ void setup();
 
 void move_forward(int Tracking_Left1Value, int Tracking_Left2Value, int Tracking_Right1Value, int Tracking_Right2Value);
 
-void move_left();
+void turn_left();
 
-void move_right();
+void turn_right();
 
 int stop_signal(int left_sensor1, int right_sensor2);
 
-int tracking_function(int command);
+//int tracking_function(int command);
 
 #endif

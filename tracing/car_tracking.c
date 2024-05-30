@@ -73,28 +73,33 @@ void move_forward(int Tracking_Left1Value, int Tracking_Left2Value, int Tracking
     }
 }
 
-void move_left() {
+
+
+void turn_left() {
     Run_Car(-35, 80);
     delay(200);
 }
 
-void move_right() {
+void turn_right() {
     Run_Car(80, -35);
     delay(200);
 }
 
-int stop_signal(int left_sensor1, int right_sensor2)
-{
-    int STOP_SIGNAL = 0;
 
-    if (left_sensor1 == 1 || right_sensor2 == 1)
-    {
-        STOP_SIGNAL = 1;
-    }
-
-    return STOP_SIGNAL;
+//l1 ^ r2 = stop
+int stop_signal(int left_sensor1, int right_sensor2) {
+    return (left_sensor1 == LOW && right_sensor2 == LOW);
 }
 
+//
+int get_command() {
+    // 명령을 받아오는 함수
+\
+    int command;
+
+    return command;
+}
+/*
 int tracking_function(int command) {
     // Must get a `command` from the client server first
 
@@ -119,4 +124,5 @@ int tracking_function(int command) {
 
     // Check and send STOP_SIGNAL
     return stop_signal(Tracking_Left1Value, Tracking_Right2Value);
-}
+} 
+*/

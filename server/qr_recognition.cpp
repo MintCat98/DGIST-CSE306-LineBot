@@ -94,7 +94,7 @@ extern "C" {
 
                 cout << "[INFO] Found " << barcode_type << " barcode: " << barcode_data << endl;
 
-                if (is_new_code(barcode_data)) {
+                if (1) {
                     parseBarcodeData(barcode_data.c_str(), qr_info);
                     strncpy(qr_info->data, barcode_data.c_str(), sizeof(qr_info->data) - 1);
                     qr_info->data[sizeof(qr_info->data) - 1] = '\0';

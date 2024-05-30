@@ -32,17 +32,12 @@ void print_received_map(Node map[ROW][COL]) {
         for (int j = 0; j < COL; j++) {
             int status = map[i][j].item.status;
             if (status == 1) {
-                if (map[i][j].item.score > 0 && map[i][j].item.score < 5) {
-                    printf("%d ", map[i][j].item.score);
-                } else {
-                    //printf("- ");
-                }
+                printf("%d ", map[i][j].item.score);
             } else if (status == 0) {
                 printf("- ");
             } else if (status == 2) {
-                printf("x%d", map[i][j].item.score);
+                printf("x");
             }
-            
         }
         printf("\n");
     }

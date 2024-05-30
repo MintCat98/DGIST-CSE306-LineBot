@@ -36,7 +36,7 @@ void print_received_map(Node map[ROW][COL]) {
             } else if (status == 0) {
                 printf("- ");
             } else if (status == 2) {
-                printf("x");
+                printf("x ");
             }
         }
         printf("\n");

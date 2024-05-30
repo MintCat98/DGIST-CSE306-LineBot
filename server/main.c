@@ -88,12 +88,15 @@ Point find_next_destination(Node map[ROW][COL]) {
                 score = -2;
             }
 
+            printf("(%d, %d): %d", new_x, new_y, score);
+
             if (score > best_score) {
                 best_score = score;
                 best_point.x = new_x;
                 best_point.y = new_y;
             }
         }
+        printf("\n");
     }
     return best_point;
 }

@@ -204,8 +204,8 @@ void* qr_thread(void* arg) {
             print_received_map(global_dgist.map);
             next = find_next_destination(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
-            int order = decide_movement(next);
-            update_direction(order);
+            decide_movement(next);
+            update_direction(COMMAND);
             printf("New direction: %d \n", robot.direction);
             
             pthread_mutex_unlock(&dgist_mutex);

@@ -32,9 +32,9 @@ int COMMAND;
 void print_received_map(Node map[ROW][COL]) {
     for (int i = ROW-1; i >= 0; i--) {
         for (int j = 0; j < COL; j++) {
-            int status = map[i][j].item.status;
+            int status = map[j][i].item.status;
             if (status == 1) {
-                printf("%d ", map[i][j].item.score);
+                printf("%d ", map[j][i].item.score);
             } else if (status == 0) {
                 printf("- ");
             } else if (status == 2) {
@@ -82,16 +82,14 @@ Point find_next_destination(Node map[ROW][COL]) {
 
         if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
             int score;
-            int status = map[new_y][new_x].item.status;
+            int status = map[new_x][new_y].item.status;
             if (status == 1) {
-                score = map[new_y][new_x].item.score;
+                score = map[new_x][new_y].item.score;
             } else if (status == 0) {
                 score = 0;
             } else if (status == 2) {
                 score = -2;
             }
-
-            printf("(%d, %d) status(%d): %d", new_x, new_y, status, score);
 
             if (score > best_score) {
                 best_score = score;
@@ -201,7 +199,6 @@ void* qr_thread(void* arg) {
             }
 
             // 다음 목적지 선택
-            print_received_map(global_dgist.map);
             next = find_next_destination(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
             decide_movement(next);
@@ -228,7 +225,6 @@ void* server_thread(void* arg) {
         pthread_mutex_lock(&dgist_mutex);
         global_dgist = dgist;
         print_received_map(global_dgist.map);
-        printf("global_dgist updated\n");
         pthread_mutex_unlock(&dgist_mutex);
 
         usleep(100000); // 0.1초 대기

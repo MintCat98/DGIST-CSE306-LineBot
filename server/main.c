@@ -26,6 +26,8 @@ pthread_mutex_t dgist_mutex = PTHREAD_MUTEX_INITIALIZER;
 Point current, next;
 Robot robot;
 
+int COMMAND;
+
 // 디버깅용
 void print_received_map(Node map[ROW][COL]) {
     for (int i = ROW-1; i >= 0; i--) {
@@ -103,35 +105,36 @@ Point find_next_destination(Node map[ROW][COL]) {
 }
 
 // 로봇의 이동 명령을 결정하는 함수
-int decide_movement(Point destination) {
+void decide_movement(Point destination) {
     // 목적지가 로봇의 현재 위치에 상대적으로 어디에 있는지 계산
     int dx = destination.x - robot.x; // 동서 방향
     int dy = destination.y - robot.y; // 남북 방향
 
     switch (robot.direction) {
         case NORTH:
-            if (dy > 0 && dx == 0) return 1; // 앞으로
-            if (dx < 0 && dy == 0) return 2; // 왼쪽으로 회전
-            if (dx > 0 && dy == 0) return 3; // 오른쪽으로 회전
+            if (dy > 0 && dx == 0) COMMAND = 1; return;// 앞으로
+            if (dx < 0 && dy == 0) COMMAND = 2; return;// 왼쪽으로 회전
+            if (dx > 0 && dy == 0) COMMAND = 3; return;// 오른쪽으로 회전
             break;
         case SOUTH:
-            if (dy < 0 && dx == 0) return 1; // 앞으로
-            if (dx > 0 && dy == 0) return 2; // 왼쪽으로 회전
-            if (dx < 0 && dy == 0) return 3; // 오른쪽으로 회전
+            if (dy < 0 && dx == 0) COMMAND = 1; return;// 앞으로
+            if (dx > 0 && dy == 0) COMMAND = 2; return;// 왼쪽으로 회전
+            if (dx < 0 && dy == 0) COMMAND = 3; return;// 오른쪽으로 회전
             break;
         case EAST:
-            if (dx > 0 && dy == 0) return 1; // 앞으로
-            if (dy < 0 && dx == 0) return 2; // 왼쪽으로 회전
-            if (dy > 0 && dx == 0) return 3; // 오른쪽으로 회전
+            if (dx > 0 && dy == 0) COMMAND = 1; return;// 앞으로
+            if (dy < 0 && dx == 0) COMMAND = 2; return;// 왼쪽으로 회전
+            if (dy > 0 && dx == 0) COMMAND = 3; return;// 오른쪽으로 회전
             break;
         case WEST:
-            if (dx < 0 && dy == 0) return 1; // 앞으로
-            if (dy > 0 && dx == 0) return 2; // 왼쪽으로 회전
-            if (dy < 0 && dx == 0) return 3; // 오른쪽으로 회전
+            if (dx < 0 && dy == 0) COMMAND = 1; return;// 앞으로
+            if (dy > 0 && dx == 0) COMMAND = 2; return; // 왼쪽으로 회전
+            if (dy < 0 && dx == 0) COMMAND = 3; return; // 오른쪽으로 회전
             break;
     }
 
-    return 0; // 이동하지 않음
+    COMMAND = 0; // 이동하지 않음
+    return;
 }
 
 void update_direction(int action) {
@@ -198,6 +201,7 @@ void* qr_thread(void* arg) {
             }
 
             // 다음 목적지 선택
+            print_received_map(global_dgist.map);
             next = find_next_destination(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
             int order = decide_movement(next);
@@ -224,6 +228,7 @@ void* server_thread(void* arg) {
         pthread_mutex_lock(&dgist_mutex);
         global_dgist = dgist;
         print_received_map(global_dgist.map);
+        printf("global_dgist updated\n");
         pthread_mutex_unlock(&dgist_mutex);
 
         usleep(100000); // 0.1초 대기

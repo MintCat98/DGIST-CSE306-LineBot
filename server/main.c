@@ -27,6 +27,7 @@ Point current, next;
 Robot robot;
 
 int COMMAND;
+int nQR;
 
 // 디버깅용
 void print_received_map(Node map[ROW][COL]) {
@@ -154,18 +155,41 @@ void update_direction(int action) {
 }
 
 int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
+    // 첫 QR 인식 후 90초가 지난 시점부터 폭탄 설치
+    static time_t start_time = 0;
+    static int counting = 0;
+    
+    if (nQR > 0) {
+        if (!counting) {
+            start_time = time(NULL);
+            counting = 1;
+        }
+        else {
+            time_t current_time = time(NULL);
+            double elapsed_time = difftime(current_time, start_time);
+
+            if (elapsed_time >= 90) return 1; 
+        }
+    }
+
+    // (1,0), (3,0), (1,4), (3,4)일 경우에 폭탄 설치
+    if ((robot.x == 1 && robot.y == 0) ||
+        (robot.x == 3 && robot.y == 0) ||
+        (robot.x == 1 && robot.y == 4) ||
+        (robot.x == 3 && robot.y == 4)) {
+        return 1;
+    }
+
+    // 적과의 거리가 2 이하일 경우에 폭탄 설치
+    /*
     int opponent_index = (my_index == 0) ? 1 : 0;
     int opponent_x = dgist->players[opponent_index].col;
     int opponent_y = dgist->players[opponent_index].row;
 
-    // 적과의 거리가 2 이하일 경우에 폭탄 설치
     if (sqrt(pow(robot.x - opponent_x, 2) + pow(robot.y - opponent_y, 2)) <= 2) {
         return 1;
     }
-
-    if (elapsed_time >= 90) { // 게임 시작 후 90초 이후에는 폭탄 설치
-        return 1;
-    }
+    */
 
     return 0;
 }
@@ -173,12 +197,14 @@ int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
 void* qr_thread(void* arg) {
     struct QRCodeInfo qr_info;
     int qr_detected = 0;
+    nQR = 0;
     time_t start_time = *(time_t*)arg;
 
     while (true) {
         detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
+            nQR += 1;
             printf("QR Code Detected: %s\n", qr_info.data);
             robot.x = qr_info.x;
             robot.y = qr_info.y;

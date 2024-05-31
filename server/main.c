@@ -77,6 +77,15 @@ Point find_next_destination(Node map[ROW][COL]) {
     Point best_point = {robot.x, robot.y};
     int best_score = -3; // TODO: 폭탄의 최저 점수여야 함.
 
+    //Manual movement (4번째 QR을 인식하기 전까지는 앞으로만 가게 함 => 폭탄 (1,0)(3,0) 또는 (1,4),(3,4)에 설치 가능)
+    /*
+    if (nQR < 4) {
+        best_point.x = robot.x + directions[0][0];
+        best_point.y = robot.y + directions[0][1];
+        return best_point;
+    }
+    */
+
     for (int i = 0; i < 3; i++) {
         int new_x = robot.x + directions[i][0];
         int new_y = robot.y + directions[i][1];

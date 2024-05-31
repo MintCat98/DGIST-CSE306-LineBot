@@ -25,6 +25,20 @@ typedef struct {
     int y;
 } Point;
 
+typedef enum {
+    EAST,
+    WEST ,
+    SOUTH,
+    NORTH
+} Direction;
+
+typedef struct {
+    int x;
+    int y;
+    int score;
+    Direction direction;
+} Robot;
+
 typedef struct {
     int socket;
     struct sockaddr_in address;
@@ -70,3 +84,4 @@ extern DGIST global_dgist;
 extern pthread_mutex_t dgist_mutex;
 extern Point current;
 extern Point next;
+extern Robot robot;

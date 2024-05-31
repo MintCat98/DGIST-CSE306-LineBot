@@ -18,6 +18,6 @@ void turn_right();
 
 int stop_signal(int left_sensor1, int right_sensor2);
 
-//int tracking_function(int command);
+int tracking_function(int command);
 
 #endif

@@ -32,18 +32,14 @@ extern "C" {
             cerr << "Error: Unable to open the camera" << endl;
             return;
         }
-
         camera.set(CAP_PROP_FRAME_WIDTH, 320);
         camera.set(CAP_PROP_FRAME_HEIGHT, 240);
         camera.set(CAP_PROP_FPS, 30);
-        camera.set(CAP_PROP_FOURCC, VideoWriter::fourcc('M', 'J', 'P', 'G'));
-        camera.set(CAP_PROP_BRIGHTNESS, 40);
-        camera.set(CAP_PROP_CONTRAST, 50);
-        camera.set(CAP_PROP_EXPOSURE, 156);
+//
 
         Mat frame;
-        namedWindow("QR Code Detection", WINDOW_AUTOSIZE);
-
+// 카메라 설정 및 프레임 처리 최적화 , 디버깅 출력지움
+// 프레임 그레이스케일로 변환해서 더 빨리 qr 인식 
         ImageScanner scanner;
         scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 1);
 
@@ -53,7 +49,6 @@ extern "C" {
                 cerr << "Error: Blank frame grabbed" << endl;
                 break;
             }
-
             Mat gray;
             cvtColor(frame, gray, COLOR_BGR2GRAY);
             int width = gray.cols;
@@ -63,42 +58,20 @@ extern "C" {
             scanner.scan(imageZBar);
 
             for (Image::SymbolIterator symbol = imageZBar.symbol_begin(); symbol != imageZBar.symbol_end(); ++symbol) {
-                vector<Point> vp;
-                int n = symbol->get_location_size();
-                for (int i = 0; i < n; i++) {
-                    vp.push_back(Point(symbol->get_location_x(i), symbol->get_location_y(i)));
-                }
-                RotatedRect r = minAreaRect(vp);
-                Point2f pts[4];
-                r.points(pts);
-                for (int i = 0; i < 4; i++) {
-                    line(frame, pts[i], pts[(i + 1) % 4], Scalar(225, 225, 225), 2);
-                }
-
-                string barcode_data = symbol->get_data();
-                string barcode_type = symbol->get_type_name();
-
-                putText(frame, barcode_data, Point(pts[1].x, pts[1].y), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(225, 225, 225), 2);
-
-                cout << "[INFO] Found " << barcode_type << " barcode: " << barcode_data << endl;
-
-                if (is_new_code(barcode_data)) {
-                    sscanf(barcode_data.c_str(), "%d%d", &qr_info->x, &qr_info->y);
-                    strncpy(qr_info->data, barcode_data.c_str(), sizeof(qr_info->data) - 1);
-                    qr_info->data[sizeof(qr_info->data) - 1] = '\0';
+                string qr_data = symbol->get_data();
+                if (is_new_code(qr_data)) {
+                    int x = qr_data[0] - '0';
+                    int y = qr_data[1] - '0';
+                    qr_info->x = x;
+                    qr_info->y = y;
+                    strncpy(qr_info->data, qr_data.c_str(), sizeof(qr_info->data));
                     *qr_detected = true;
-                    destroyAllWindows();  // QR 코드 인식을 한 번만 수행하고 종료
                     return;
                 }
             }
-
-            imshow("QR Code Detection", frame);
-
-            if (waitKey(10) == 'q') {
-                break;
+            *qr_detected = false;
+                
             }
-        }
-
         camera.release();
         destroyAllWindows();
     }

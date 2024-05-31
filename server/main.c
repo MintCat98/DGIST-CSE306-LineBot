@@ -88,21 +88,58 @@ Point find_next_destination(Point current, Node map[ROW][COL]) {
 int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
     int my_x = current.x;
     int my_y = current.y;
+    int my_score = dgist->players[my_index].score;
     int opponent_index = (my_index == 0) ? 1 : 0;
     int opponent_x = dgist->players[opponent_index].row;
     int opponent_y = dgist->players[opponent_index].col;
+    int opponent_score = dgist->players[opponent_index].score;
 
     // 적과의 거리가 2 이하일 경우에 폭탄 설치
     if (sqrt(pow(my_x - opponent_x, 2) + pow(my_y - opponent_y, 2)) <= 2) {
         return 1;
     }
-
-    if (elapsed_time >= 90) { // 게임 시작 후 90초 이후에는 폭탄 설치
+    // 30초 남고 내가 지고 있을 때 폭탄설치
+    if (elapsed_time >= 90 && my_score < opponent_score) { 
         return 1;
     }
 
+    // 상대방 Greedy && 우리 속도가 더 빠를 때, 우리가 상대 예상 도착 위치일 때 폭탄 설치  
+    int predicted_opponent_x = opponent_x;
+    int predicted_opponent_y = opponent_y;
+    double min_distance_to_item = INFINITY;
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            if (dgist->map[i][j].item.status == item) {
+                double distance_to_item = sqrt(pow(opponent_x - i, 2) + pow(opponent_y - j, 2));
+                if (distance_to_item < min_distance_to_item) {
+                    min_distance_to_item = distance_to_item;
+                    predicted_opponent_x = i;
+                    predicted_opponent_y = j;
+                }
+            }
+        }
+    }
+    if (predicted_opponent_x == my_x && predicted_opponent_y == my_y) {
+        return 1;
+    }
+
+
+    // 현재 위치가 주요 교차점일 때
+    int key_intersections[8][2] = {
+        {0, 1}, {0, 3}, {1, 0}, {3, 0}, 
+        {4, 1}, {4, 3}, {1, 4}, {3, 4}
+    };
+    for (int k = 0; k < 8; ++k) {
+        int key_x = key_intersections[k][0];
+        int key_y = key_intersections[k][1];
+        if (my_x == key_x && my_y == key_y) {
+            return 1; 
+        } 
+    }
     return 0;
+
 }
+
 
 void* qr_thread(void* arg) {
     struct QRCodeInfo qr_info;
@@ -110,7 +147,7 @@ void* qr_thread(void* arg) {
     time_t start_time = *(time_t*)arg;
 
     while (true) {
-        //detectQRCode(&qr_info, &qr_detected);
+        detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
             printf("QR Code Detected:\n");

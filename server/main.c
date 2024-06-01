@@ -23,11 +23,11 @@ extern "C" {
 DGIST global_dgist;
 int sock;
 pthread_mutex_t dgist_mutex = PTHREAD_MUTEX_INITIALIZER;
-Point current, next;
 Robot robot;
 
 int COMMAND;
 int nQR;
+int myIndex;
 
 // 디버깅용
 void print_received_map(Node map[ROW][COL]) {
@@ -163,7 +163,7 @@ void update_direction(int action) {
     }
 }
 
-int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
+int should_place_bomb(DGIST* dgist) {
     // 첫 QR 인식 후 90초가 지난 시점부터 폭탄 설치
     static time_t start_time = 0;
     static int counting = 0;
@@ -222,10 +222,9 @@ void* qr_thread(void* arg) {
 
             // 뮤텍스를 사용하여 글로벌 데이터 접근
             pthread_mutex_lock(&dgist_mutex);
-            double elapsed_time = difftime(time(NULL), start_time);
 
             // 폭탄 설치 여부 결정
-            if (should_place_bomb(&global_dgist, 1, elapsed_time)) {
+            if (should_place_bomb(&global_dgist)) {
                 printf("Place a bomb at (%d, %d)\n", robot.x, robot.y);
                 send_action(sock, robot.x, robot.y, setBomb);
             } else {
@@ -234,7 +233,7 @@ void* qr_thread(void* arg) {
             }
 
             // 다음 목적지 선택
-            next = find_next_destination(global_dgist.map);
+            Point next = find_next_destination(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
             decide_movement(next);
             update_direction(COMMAND);
@@ -255,6 +254,12 @@ void* server_thread(void* arg) {
     while (true) {
         // 서버로부터 DGIST 구조체 수신
         receive_dgist(sock, &dgist);
+        
+        // dgist.players[index] index 확인
+        if (nQR == 1) {
+            myIndex = (dgist.players[0].row == robot.y) ? 0 : 1;
+            printf("myIndex: %d\n", myIndex);
+        }
 
         // 뮤텍스를 사용하여 글로벌 데이터 업데이트
         pthread_mutex_lock(&dgist_mutex);

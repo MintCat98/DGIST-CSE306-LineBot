@@ -47,6 +47,21 @@ void print_received_map(Node map[ROW][COL]) {
     printf("\n");
 }
 
+//시작지점과 가까운 맵의 절반 
+// 가까운 지역 먼저 다 먹자 
+bool is_in_priority_area(int x, int y) {
+    if (robot.x == 0 && robot.y == 0) {
+        return (x <= 2 && y <= 2);
+    } else if (robot.x == 4 && robot.y == 4) {
+        return (x >= 2 && y >= 2);
+    }
+    return false;
+}
+
+
+
+
+
 Point find_next_destination(Node map[ROW][COL]) {
     int directions[3][2];
 
@@ -86,11 +101,12 @@ Point find_next_destination(Node map[ROW][COL]) {
     }
     */
 
+//priority area의 item 확인 
     for (int i = 0; i < 3; i++) {
         int new_x = robot.x + directions[i][0];
         int new_y = robot.y + directions[i][1];
 
-        if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
+        if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL && is_in_priority_area(new_x, new_y)) {
             int score;
             int status = map[new_x][new_y].item.status;
             if (status == 1) {
@@ -100,17 +116,45 @@ Point find_next_destination(Node map[ROW][COL]) {
             } else if (status == 2) {
                 score = -2;
             }
-
             if (score > best_score) {
                 best_score = score;
                 best_point.x = new_x;
                 best_point.y = new_y;
             }
         }
-        printf("\n");
     }
+
+    // If no items found in the priority area, fall back to greedy approach
+
+    if (best_score == -3) {
+        for (int i = 0; i < 3; i++) {
+            int new_x = robot.x + directions[i][0];
+            int new_y = robot.y + directions[i][1];
+
+            if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
+                int score;
+                int status = map[new_x][new_y].item.status;
+                if (status == 1) {
+                    score = map[new_x][new_y].item.score;
+                } else if (status == 0) {
+                    score = 0;
+                } else if (status == 2) {
+                    score = -2;
+                }
+
+                if (score > best_score) {
+                    best_score = score;
+                    best_point.x = new_x;
+                    best_point.y = new_y;
+                }
+            }
+        }
+    }
+
     return best_point;
 }
+
+
 
 // 로봇의 이동 명령을 결정하는 함수
 void decide_movement(Point destination) {

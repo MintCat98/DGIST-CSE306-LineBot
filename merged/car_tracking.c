@@ -101,7 +101,7 @@ void tracking_function()
         int Tracking_Right2Value = digitalRead(Tracking_Right2);
 
         // When it arrives at an intersection, stop_signal() returns 1.
-        int INTERSECTION = intersection_signal(Tracking_Left1Value, Tracking_Right2Value);
+        int INTERSECTION = intersection_signal(Tracking_Left1Value, Tracking_Left2Value, Tracking_Right1Value, Tracking_Right2Value);
 
         // INTERSECTION => Follow the COMMAND
         if (INTERSECTION) {

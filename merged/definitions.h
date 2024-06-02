@@ -83,5 +83,3 @@ void detectQRCode(struct QRCodeInfo *qr_info, int *qr_detected);
 extern DGIST global_dgist;
 extern pthread_mutex_t dgist_mutex;
 extern Robot robot;
-
-extern int COMMAND;

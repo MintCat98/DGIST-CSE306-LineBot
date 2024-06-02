@@ -20,4 +20,6 @@ int intersection_signal(int l1, int l2, int r1, int r2);
 
 void tracking_function();
 
+extern int COMMAND;
+
 #endif

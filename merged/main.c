@@ -149,6 +149,35 @@ void decide_movement(Point destination) {
     return;
 }
 
+int decide_movement2(Point destination) {
+    // 목적지가 로봇의 현재 위치에 상대적으로 어디에 있는지 계산
+    int dx = destination.x - robot.x; // 동서 방향
+    int dy = destination.y - robot.y; // 남북 방향
+    int command;
+
+    int currDirection = robot.direction;
+
+    if (currDirection == 3) {
+        if (dy > 0 && dx == 0) return 1;
+        if (dx < 0 && dy == 0) return 2; 
+        if (dx > 0 && dy == 0) return 3; 
+    } else if (currDirection == 2) {
+        if (dy < 0 && dx == 0) return 1; 
+        if (dx > 0 && dy == 0) return 2; 
+        if (dx < 0 && dy == 0) return 3; 
+    } else if (currDirection == 0) {
+        if (dx > 0 && dy == 0) return = 1;
+        if (dy < 0 && dx == 0) return = 2;
+        if (dy > 0 && dx == 0) return = 3; 
+    } else if (currDirection == 1) {
+        if (dx < 0 && dy == 0) return 1; 
+        if (dy > 0 && dx == 0) return 2; 
+        if (dy < 0 && dx == 0) return 3; 
+    } else {
+        return 0;
+    }
+}
+
 void update_direction(int action) {
     printf("COMMAND: %d\n", action);
     if (action == 2) { // 왼쪽으로 회전
@@ -240,8 +269,11 @@ void* qr_thread(void* arg) {
             // 다음 목적지 선택
             Point next = find_next_destination(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
-            decide_movement(next);
-            update_direction(COMMAND);
+            int cmd = decide_movement2(next);
+            printf("cmd: %d\n", cmd);
+            COMMAND = cmd;
+            printf("COMMAND: %d\n", COMMAND);
+            update_direction(cmd);
             printf("New direction: %d \n", robot.direction);
             
             pthread_mutex_unlock(&dgist_mutex);

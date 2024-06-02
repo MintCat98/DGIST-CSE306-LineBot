@@ -19,7 +19,6 @@ void write_block_data(int reg, unsigned char* data, int length) {
         printf("Failed to write!\n");
         exit(1);
     }
-    printf("Data-Write Success.\n");
 }
 
 void Ctrl_Car(int l_dir, int l_speed, int r_dir, int r_speed) {
@@ -38,4 +37,5 @@ void Stop_Car() {
     int reg = 0x01;
     unsigned char data[] = { 0, 0, 0, 0 };
     write_block_data(reg, data, 4);
+    delay(20);
 }

@@ -120,27 +120,28 @@ void decide_movement(Point destination) {
     // 목적지가 로봇의 현재 위치에 상대적으로 어디에 있는지 계산
     int dx = destination.x - robot.x; // 동서 방향
     int dy = destination.y - robot.y; // 남북 방향
+    printf("robot.direction: %d\n", robot.direction);
 
     switch (robot.direction) {
         case NORTH:
-            if (dy > 0 && dx == 0) COMMAND = 1; return;// 앞으로
-            if (dx < 0 && dy == 0) COMMAND = 2; return;// 왼쪽으로 회전
-            if (dx > 0 && dy == 0) COMMAND = 3; return;// 오른쪽으로 회전
+            if (dy > 0 && dx == 0) {COMMAND = 1;printf("a1\n");} return;// 앞으로
+            if (dx < 0 && dy == 0) printf("b1\n");COMMAND = 2; return;// 왼쪽으로 회전
+            if (dx > 0 && dy == 0) printf("c1\n");COMMAND = 3; return;// 오른쪽으로 회전
             break;
         case SOUTH:
-            if (dy < 0 && dx == 0) COMMAND = 1; return;// 앞으로
-            if (dx > 0 && dy == 0) COMMAND = 2; return;// 왼쪽으로 회전
-            if (dx < 0 && dy == 0) COMMAND = 3; return;// 오른쪽으로 회전
+            if (dy < 0 && dx == 0) printf("a2\n");COMMAND = 1; return;// 앞으로
+            if (dx > 0 && dy == 0) printf("b2\n");COMMAND = 2; return;// 왼쪽으로 회전
+            if (dx < 0 && dy == 0) printf("c2\n");COMMAND = 3; return;// 오른쪽으로 회전
             break;
         case EAST:
-            if (dx > 0 && dy == 0) COMMAND = 1; return;// 앞으로
-            if (dy < 0 && dx == 0) COMMAND = 2; return;// 왼쪽으로 회전
-            if (dy > 0 && dx == 0) COMMAND = 3; return;// 오른쪽으로 회전
+            if (dx > 0 && dy == 0) printf("a3\n");COMMAND = 1; return;// 앞으로
+            if (dy < 0 && dx == 0) printf("b3\n");COMMAND = 2; return;// 왼쪽으로 회전
+            if (dy > 0 && dx == 0) printf("c3\n");COMMAND = 3; return;// 오른쪽으로 회전
             break;
         case WEST:
-            if (dx < 0 && dy == 0) COMMAND = 1; return;// 앞으로
-            if (dy > 0 && dx == 0) COMMAND = 2; return; // 왼쪽으로 회전
-            if (dy < 0 && dx == 0) COMMAND = 3; return; // 오른쪽으로 회전
+            if (dx < 0 && dy == 0) printf("a4\n");COMMAND = 1; return;// 앞으로
+            if (dy > 0 && dx == 0) printf("b4\n");COMMAND = 2; return; // 왼쪽으로 회전
+            if (dy < 0 && dx == 0) printf("c4\n");COMMAND = 3; return; // 오른쪽으로 회전
             break;
     }
 
@@ -149,6 +150,7 @@ void decide_movement(Point destination) {
 }
 
 void update_direction(int action) {
+    printf("COMMAND: %d\n", action);
     if (action == 2) { // 왼쪽으로 회전
         switch (robot.direction) {
             case NORTH: robot.direction = WEST; break;
@@ -279,8 +281,8 @@ void* server_thread(void* arg) {
 void* raspbot_thread(void *arg) {
     setup();
 
-    //초기 command 설정 - 직진
-    COMMAND = 1;
+    // 초기 command 설정 - 직진
+    // COMMAND = 1;
 
     tracking_function();
 }
@@ -313,7 +315,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Raspbot 스레드 시작
-    if (pthread_create(&raspbot_tid, NULL, server_thread, NULL) != 0) {
+    if (pthread_create(&raspbot_tid, NULL, raspbot_thread, NULL) != 0) {
         perror("Failed to create raspbot thread");
         exit(1);
     }

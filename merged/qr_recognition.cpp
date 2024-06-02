@@ -9,6 +9,9 @@ using namespace cv;
 using namespace std;
 using namespace zbar;
 
+
+VideoCapture camera;
+
 extern "C" {
     struct QRCodeInfo {
         int x;
@@ -16,7 +19,7 @@ extern "C" {
         char data[128];
     };
 
-    VideoCapture camera;
+    
 
     static set<string> detected_codes;
 
@@ -41,7 +44,7 @@ extern "C" {
     }
 
     void camSetup() {
-        camera(0);
+        camera.open(0);
         return;
     }
 

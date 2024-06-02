@@ -90,7 +90,8 @@ void move_right() {
 int intersection_signal(int l1, int l2, int r1, int r2)
 {
     // Return 1 if [LLLH] or [HLLL] or [LLLL]
-    return (l1 == LOW && l2 == LOW && r1 == LOW) || (l2 == LOW && r1 == LOW && r2 == LOW);
+    int stop = (l1 == LOW && l2 == LOW && r1 == LOW) || (l2 == LOW && r1 == LOW && r2 == LOW);
+    return stop;
 }
 
 void tracking_function()
@@ -107,6 +108,7 @@ void tracking_function()
 
         // INTERSECTION => Follow the COMMAND
         if (INTERSECTION) {
+            Stop_Car();
             switch (COMMAND) {
 
                 // Left-Rotation

@@ -8,10 +8,10 @@
 #include <sys/socket.h>
 #include <time.h>
 #include <math.h>
-#include "definitions.h"
 #include <wiringPi.h>
 #include "car_control.h"
 #include "car_tracking.h"
+#include "definitions.h"
 
 // C++에서 정의된 함수 선언
 #ifdef __cplusplus
@@ -21,15 +21,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-typedef struct {
-    int socket;
-    struct sockaddr_in address;
-    int row;
-    int col;
-    int score;
-    int bomb;
-} client_info;
 
 // 글로벌 변수와 뮤텍스 정의
 DGIST global_dgist;

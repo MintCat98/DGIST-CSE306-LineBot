@@ -16,6 +16,8 @@ extern "C" {
         char data[128];
     };
 
+    VideoCapture camera;
+
     static set<string> detected_codes;
 
     bool is_new_code(const string& code) {
@@ -36,10 +38,14 @@ extern "C" {
         qr_info->x = 0;
         qr_info->y = 0;
     }
-}
+    }
+
+    void camSetup() {
+        camera(0);
+        return;
+    }
 
     void detectQRCode(QRCodeInfo *qr_info, bool *qr_detected) {
-        VideoCapture camera(0);
         if (!camera.isOpened()) {
             cerr << "Error: Unable to open the camera" << endl;
             return;

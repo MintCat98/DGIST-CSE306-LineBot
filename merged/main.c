@@ -211,7 +211,7 @@ void* qr_thread(void* arg) {
     int qr_detected = 0;
     nQR = 0;
     time_t start_time = *(time_t*)arg;
-
+    camSetup();
     while (true) {
         detectQRCode(&qr_info, &qr_detected);
         

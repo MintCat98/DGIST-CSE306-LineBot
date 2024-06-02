@@ -79,6 +79,7 @@ int create_socket();
 void send_action(int sock, int x, int y, enum Action action);
 void receive_dgist(int sock, DGIST* dgist);
 void detectQRCode(struct QRCodeInfo *qr_info, int *qr_detected);
+void camSetup();
 
 extern DGIST global_dgist;
 extern pthread_mutex_t dgist_mutex;

@@ -49,16 +49,28 @@ void print_received_map(Node map[ROW][COL]) {
 
 //시작지점과 가까운 맵의 절반 
 // 가까운 지역 먼저 다 먹자 
+/*
+
+0 x x x 
+0 0 x x
+0 0 0 x
+i 0 0 0
+
+*/
 bool is_in_priority_area(int x, int y) {
     if (robot.x == 0 && robot.y == 0) {
-        return (x <= 2 && y <= 2);
+        if (x == 0 && y <= 3) return true;
+        if (x == 1 && y <= 2) return true;
+        if (x == 2 && y <= 1) return true;
+        if (x == 3 && y <= 0) return true;
     } else if (robot.x == 4 && robot.y == 4) {
-        return (x >= 2 && y >= 2);
+        if (x == 4 && y >= 0) return true;
+        if (x == 3 && y >= 1) return true;
+        if (x == 2 && y >= 2) return true;
+        if (x == 1 && y >= 3) return true;
     }
     return false;
 }
-
-
 
 
 
@@ -102,6 +114,8 @@ Point find_next_destination(Node map[ROW][COL]) {
     */
 
 //priority area의 item 확인 
+//PA 내 아이템 먼저 먹기 
+
     for (int i = 0; i < 3; i++) {
         int new_x = robot.x + directions[i][0];
         int new_y = robot.y + directions[i][1];
@@ -124,7 +138,7 @@ Point find_next_destination(Node map[ROW][COL]) {
         }
     }
 
-    // If no items found in the priority area, fall back to greedy approach
+    // PA내 아이템이 없으면, 기존 greedy로 동작 
 
     if (best_score == -3) {
         for (int i = 0; i < 3; i++) {
@@ -208,6 +222,8 @@ void update_direction(int action) {
 }
 
 int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
+
+    // 상대 점수와 위치, 내 점수 
     int my_score = dgist->players[my_index].score;
     int opponent_index = (my_index == 0) ? 1 : 0;
     int opponent_x = dgist->players[opponent_index].row;
@@ -232,7 +248,7 @@ int should_place_bomb(DGIST* dgist, int my_index, double elapsed_time) {
         }
     }
 
-    // (1,0), (3,0), (1,4), (3,4)일 경우에 폭탄 설치
+    // 주요 지점일 경우에 폭탄 설치 
     int key_intersections[8][2] = {
         {0, 1}, {0, 3}, {1, 0}, {3, 0}, 
         {4, 1}, {4, 3}, {1, 4}, {3, 4}

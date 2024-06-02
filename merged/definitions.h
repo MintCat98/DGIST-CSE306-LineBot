@@ -39,6 +39,7 @@ typedef struct {
     Direction direction;
 } Robot;
 
+/*
 typedef struct {
     int socket;
     struct sockaddr_in address;
@@ -47,7 +48,7 @@ typedef struct {
     int score;
     int bomb;
 } client_info;
-
+*/
 typedef struct {
     enum Status status;
     int score;

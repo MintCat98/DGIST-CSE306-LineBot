@@ -22,6 +22,15 @@ extern "C" {
 }
 #endif
 
+typedef struct {
+    int socket;
+    struct sockaddr_in address;
+    int row;
+    int col;
+    int score;
+    int bomb;
+} client_info;
+
 // 글로벌 변수와 뮤텍스 정의
 DGIST global_dgist;
 int sock;

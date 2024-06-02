@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
-#include <sys/socket.h>
 #include "car_control.h"
 #include "car_tracking.h"
 #include "definitions.h"

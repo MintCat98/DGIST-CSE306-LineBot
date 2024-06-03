@@ -146,6 +146,9 @@ int (*findWays(Direction direction))[2] {
     return ways;
 }
 
+int distance(int x, int y, int new_x, int new_y) {
+    return abs(new_x - x) + abs(new_y - y);
+}
 
 Point find_next_destination2(Node map[ROW][COL]) {
     Point best_point = {robot.x, robot.y};

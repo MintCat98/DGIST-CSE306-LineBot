@@ -444,7 +444,7 @@ void* raspbot_thread(void *arg) {
     // 초기 command 설정 - 직진
     // COMMAND = 1;
 
-    //tracking_function();
+    tracking_function();
 }
 
 int main(int argc, char *argv[]) {

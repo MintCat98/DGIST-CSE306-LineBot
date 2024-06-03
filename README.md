@@ -1,9 +1,11 @@
 ## DGIST CSE306 Team Project
 
-*Team Name.* **(Undecided)**
+> **v1.0.0** *(A stable version for line-tracing and qr-recognition)*
+
+*Team Name.* **CANT_OPEN_CAMERA_BY_INDEX**
 
 1. **Goal**: Implement Line-Bot Operations with `C-lang`
-2. **Project Duration**: `24-05-09` ~ `24-05-21`
+2. **Project Duration**: `24-05-09` ~ `24-06-03`
 3. **Contributors**
    - Mincheol Kang *(202111002)*
    - Youngjin Park *(202011083)*

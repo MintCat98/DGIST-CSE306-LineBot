@@ -116,40 +116,7 @@ Point find_next_destination(Node map[ROW][COL]) {
 }
 
 // 로봇의 이동 명령을 결정하는 함수
-void decide_movement(Point destination) {
-    // 목적지가 로봇의 현재 위치에 상대적으로 어디에 있는지 계산
-    int dx = destination.x - robot.x; // 동서 방향
-    int dy = destination.y - robot.y; // 남북 방향
-    printf("robot.direction: %d\n", robot.direction);
-
-    switch (robot.direction) {
-        case NORTH:
-            if (dy > 0 && dx == 0) {COMMAND = 1;printf("a1\n");} return;// 앞으로
-            if (dx < 0 && dy == 0) printf("b1\n");COMMAND = 2; return;// 왼쪽으로 회전
-            if (dx > 0 && dy == 0) printf("c1\n");COMMAND = 3; return;// 오른쪽으로 회전
-            break;
-        case SOUTH:
-            if (dy < 0 && dx == 0) printf("a2\n");COMMAND = 1; return;// 앞으로
-            if (dx > 0 && dy == 0) printf("b2\n");COMMAND = 2; return;// 왼쪽으로 회전
-            if (dx < 0 && dy == 0) printf("c2\n");COMMAND = 3; return;// 오른쪽으로 회전
-            break;
-        case EAST:
-            if (dx > 0 && dy == 0) printf("a3\n");COMMAND = 1; return;// 앞으로
-            if (dy < 0 && dx == 0) printf("b3\n");COMMAND = 2; return;// 왼쪽으로 회전
-            if (dy > 0 && dx == 0) printf("c3\n");COMMAND = 3; return;// 오른쪽으로 회전
-            break;
-        case WEST:
-            if (dx < 0 && dy == 0) printf("a4\n");COMMAND = 1; return;// 앞으로
-            if (dy > 0 && dx == 0) printf("b4\n");COMMAND = 2; return; // 왼쪽으로 회전
-            if (dy < 0 && dx == 0) printf("c4\n");COMMAND = 3; return; // 오른쪽으로 회전
-            break;
-    }
-
-    COMMAND = 0; // 이동하지 않음
-    return;
-}
-
-int decide_movement2(Point destination) {
+int decide_movement(Point destination) {
     // 목적지가 로봇의 현재 위치에 상대적으로 어디에 있는지 계산
     int dx = destination.x - robot.x; // 동서 방향
     int dy = destination.y - robot.y; // 남북 방향
@@ -166,9 +133,9 @@ int decide_movement2(Point destination) {
         if (dx > 0 && dy == 0) return 2; 
         if (dx < 0 && dy == 0) return 3; 
     } else if (currDirection == 0) {
-        if (dx > 0 && dy == 0) return = 1;
-        if (dy < 0 && dx == 0) return = 2;
-        if (dy > 0 && dx == 0) return = 3; 
+        if (dx > 0 && dy == 0) return 1;
+        if (dy < 0 && dx == 0) return 2;
+        if (dy > 0 && dx == 0) return 3; 
     } else if (currDirection == 1) {
         if (dx < 0 && dy == 0) return 1; 
         if (dy > 0 && dx == 0) return 2; 
@@ -178,23 +145,34 @@ int decide_movement2(Point destination) {
     }
 }
 
-void update_direction(int action) {
-    printf("COMMAND: %d\n", action);
+Direction update_direction(int action) {
+    int currDirection = robot.direction;
+
     if (action == 2) { // 왼쪽으로 회전
-        switch (robot.direction) {
-            case NORTH: robot.direction = WEST; break;
-            case SOUTH: robot.direction = EAST; break;
-            case EAST:  robot.direction = NORTH; break;
-            case WEST:  robot.direction = SOUTH; break;
+        if (currDirection == 3) {
+            return WEST;
+        } else if (currDirection == 2) {
+            return EAST;
+        } else if (currDirection == 0) {
+            return NORTH;
+        } else if (currDirection == 1) {
+            return SOUTH;
         }
     } else if (action == 3) { // 오른쪽으로 회전
-        switch (robot.direction) {
-            case NORTH: robot.direction = EAST; break;
-            case SOUTH: robot.direction = WEST; break;
-            case EAST:  robot.direction = SOUTH; break;
-            case WEST:  robot.direction = NORTH; break;
+        if (currDirection == 3) {
+            return EAST;
+        } else if (currDirection == 2) {
+            return WEST;
+        } else if (currDirection == 0) {
+            return SOUTH;
+        } else if (currDirection == 1) {
+            return NORTH;
         }
+    } else {
+        return robot.direction;
     }
+    
+
 }
 
 int should_place_bomb(DGIST* dgist) {
@@ -269,11 +247,10 @@ void* qr_thread(void* arg) {
             // 다음 목적지 선택
             Point next = find_next_destination(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
-            int cmd = decide_movement2(next);
-            printf("cmd: %d\n", cmd);
+            int cmd = decide_movement(next);
             COMMAND = cmd;
-            printf("COMMAND: %d\n", COMMAND);
-            update_direction(cmd);
+            Direction newDir = update_direction(COMMAND);
+            robot.direction = newDir;
             printf("New direction: %d \n", robot.direction);
             
             pthread_mutex_unlock(&dgist_mutex);

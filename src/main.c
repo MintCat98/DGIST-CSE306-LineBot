@@ -27,10 +27,12 @@ DGIST global_dgist;
 int sock;
 pthread_mutex_t dgist_mutex = PTHREAD_MUTEX_INITIALIZER;
 Robot robot;
+Point previous;
 
 int COMMAND;
 int nQR;
 int myIndex;
+int algorithm;
 
 // 디버깅용
 void print_received_map(Node map[ROW][COL]) {
@@ -48,6 +50,26 @@ void print_received_map(Node map[ROW][COL]) {
         printf("\n");
     }
     printf("\n");
+}
+
+//디버깅용
+void directionPrint() {
+    if (robot.direction == 0) {
+        printf("robot.direction: 동\n");
+    } else if (robot.direction == 1) {
+        printf("robot.direction: 서\n");
+    } else if (robot.direction == 2) {
+        printf("robot.direction: 남\n");
+    } else if (robot.direction == 3) {
+        printf("robot.direction: 북\n");
+    }
+}
+
+void printCommand(int cmd) {
+    if (cmd == 1) printf("직진\n");
+    else if (cmd == 2) printf("좌회전\n");
+    else if (cmd == 3) printf("우회전\n");
+    return;
 }
 
 Point find_next_destination(Node map[ROW][COL]) {
@@ -167,6 +189,26 @@ Direction update_direction(int action, Direction direction) {
     }
 }
 
+Direction set_direction(int x, int y) {
+    Direction newDir;
+
+    if (x > previous.x) {
+        newDir = EAST;
+    } else if (x < previous.x) {
+        newDir = WEST;
+    } else if (y > previous.y) {
+        newDir = NORTH;
+    } else if (y < previous.y) {
+        newDir = SOUTH;
+    }
+
+    // 이전 위치를 현재 위치로 업데이트
+    previous.x = x;
+    previous.y = y;
+
+    return newDir;
+}
+
 int distance(int x, int y, int new_x, int new_y) {
     return abs(new_x - x) + abs(new_y - y);
 }
@@ -260,7 +302,6 @@ int decide_movement(Point destination) {
     }
 }
 
-
 int should_place_bomb(DGIST* dgist) {
     // 첫 QR 인식 후 90초가 지난 시점부터 폭탄 설치
     static time_t start_time = 0;
@@ -301,26 +342,6 @@ int should_place_bomb(DGIST* dgist) {
     return 0;
 }
 
-//디버깅용
-void directionPrint() {
-    if (robot.direction == 0) {
-        printf("robot.direction: 동\n");
-    } else if (robot.direction == 1) {
-        printf("robot.direction: 서\n");
-    } else if (robot.direction == 2) {
-        printf("robot.direction: 남\n");
-    } else if (robot.direction == 3) {
-        printf("robot.direction: 북\n");
-    }
-}
-
-void printCommand(int cmd) {
-    if (cmd == 1) printf("직진\n");
-    else if (cmd == 2) printf("좌회전\n");
-    else if (cmd == 3) printf("우회전\n");
-    return;
-}
-
 void* qr_thread(void* arg) {
     struct QRCodeInfo qr_info;
     int qr_detected = 0;
@@ -337,10 +358,24 @@ void* qr_thread(void* arg) {
         detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
+
+            if (qr_info.x == previous.x && qr_info.y == previous.y) {
+                printf("중복 qr detected (%d, %d)\n", qr_info.x, qr_info.y);
+                qr_detected = 0;
+                continue;
+            }
+
             nQR += 1;
             robot.x = qr_info.x;
             robot.y = qr_info.y;
             printf("Current location: (%d, %d)\n", robot.x, robot.y);
+            
+            printf("direction update 전: ");
+            directionPrint();
+            robot.direction = set_direction(robot.x, robot.y);
+            printf("direction update 후: ");
+            directionPrint();
+
             qr_detected = 0; 
 
             // 뮤텍스를 사용하여 글로벌 데이터 접근
@@ -356,16 +391,16 @@ void* qr_thread(void* arg) {
             }
 
             // 다음 목적지 선택
-            Point next = find_next_destination(global_dgist.map);
+            if (algorithm == 1) {
+                Point next = find_next_destination(global_dgist.map);
+            } else if (algorithm == 2) {
+                Point next = find_next_destination2(global_dgist.map);
+            }
+            
             printf("Next destination: (%d, %d)\n", next.x, next.y);
             int cmd = decide_movement(next);
             COMMAND = cmd;
             printCommand(COMMAND);
-
-            Direction newDir = update_direction(COMMAND, robot.direction);
-            robot.direction = newDir;
-            printf("New ");
-            directionPrint();
             
             pthread_mutex_unlock(&dgist_mutex);
         }
@@ -411,8 +446,8 @@ void* raspbot_thread(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 5) {
-        fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot index> <initial direction>\n", argv[0]);
+    if (argc != 6) {
+        fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot index> <initial direction> <algorithm>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -420,6 +455,7 @@ int main(int argc, char *argv[]) {
     int server_port = atoi(argv[2]);
     int robot_index = atoi(argv[3]); 
     robot.direction = atoi(argv[4]);
+    algorithm = atoi(argv[5]);
 
     pthread_t qr_tid, server_tid, raspbot_tid;
     time_t start_time;
@@ -428,12 +464,33 @@ int main(int argc, char *argv[]) {
     // 소켓 생성
     sock = create_socket(server_ip, server_port);
 
+    // 시작 위치(robot_index)에 따라 초기 상태 설정
     if (robot_index == 1) {
         robot.x = 0;
         robot.y = 0;
+        if (robot.direction == NORTH) {
+            previous.x = 0;
+            previous.y = -1;
+        } else if (robot.direction == EAST) {
+            previous.x = -1;
+            previous.y = 0;
+        } else {
+            fprintf(stderr, "Invalid initial direction\n");
+            exit(EXIT_FAILURE);
+        }
     } else {
         robot.x = 4;
         robot.y = 4;
+        if (robot.direction == SOUTH) {
+            previous.x = 4;
+            previous.y = 5;
+        } else if (robot.direction == WEST) {
+            previous.x = 5;
+            previous.y = 4;
+        } else {
+            fprintf(stderr, "Invalid initial direction\n");
+            exit(EXIT_FAILURE);
+        }
     }
 
     // Raspbot 스레드 시작

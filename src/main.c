@@ -8,7 +8,6 @@
 #include <sys/socket.h>
 #include <time.h>
 #include <math.h>
-#include <signal.h>
 #include <wiringPi.h>
 #include "car_control.h"
 #include "car_tracking.h"
@@ -32,12 +31,6 @@ Robot robot;
 int COMMAND;
 int nQR;
 int myIndex;
-
-volatile sig_atomic_t stop;
-
-void handle_sigint(int sig) {
-    stop = 1;
-}
 
 // 디버깅용
 void print_received_map(Node map[ROW][COL]) {
@@ -329,7 +322,7 @@ void* qr_thread(void* arg) {
 
     camSetup();
 
-    while (!stop) {
+    while () {
         detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
@@ -374,7 +367,7 @@ void* qr_thread(void* arg) {
 void* server_thread(void* arg) {
     DGIST dgist;
 
-    while (!stop) { // 변경된 부분
+    while (1) { // 변경된 부분
         // 서버로부터 DGIST 구조체 수신
         receive_dgist(sock, &dgist);
         
@@ -406,15 +399,6 @@ void* raspbot_thread(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-    struct sigaction sa;
-    sa.sa_handler = handle_sigint;
-    sa.sa_flags = 0; // 또는 SA_RESTART
-    sigemptyset(&sa.sa_mask);
-    if (sigaction(SIGINT, &sa, NULL) == -1) {
-        perror("sigaction");
-        exit(EXIT_FAILURE);
-    }
-
     if (argc != 4) {
         fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot index>\n", argv[0]);
         exit(EXIT_FAILURE);

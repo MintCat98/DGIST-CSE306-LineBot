@@ -142,20 +142,20 @@ int (*findWays(Direction direction))[2] {
 
     if (direction == NORTH) {
         ways[0][0] = 0; ways[0][1] = 1; // 앞으로
-        ways[1][0] = 1; ways[1][1] = 0; // 오른쪽
-        ways[2][0] = -1; ways[2][1] = 0; // 왼쪽
+        ways[2][0] = 1; ways[2][1] = 0; // 오른쪽
+        ways[1][0] = -1; ways[1][1] = 0; // 왼쪽
     } else if (direction == SOUTH) {
         ways[0][0] = 0; ways[0][1] = -1; // 앞으로
-        ways[1][0] = -1; ways[1][1] = 0; // 오른쪽
-        ways[2][0] = 1; ways[2][1] = 0; // 왼쪽
+        ways[2][0] = -1; ways[2][1] = 0; // 오른쪽
+        ways[1][0] = 1; ways[1][1] = 0; // 왼쪽
     } else if (direction == EAST) {
         ways[0][0] = 1; ways[0][1] = 0; // 앞으로
-        ways[1][0] = 0; ways[1][1] = -1; // 오른쪽
-        ways[2][0] = 0; ways[2][1] = 1; // 왼쪽
+        ways[2][0] = 0; ways[2][1] = -1; // 오른쪽
+        ways[1][0] = 0; ways[1][1] = 1; // 왼쪽
     } else if (direction == WEST) {
         ways[0][0] = -1; ways[0][1] = 0; // 앞으로
-        ways[1][0] = 0; ways[1][1] = 1; // 오른쪽
-        ways[2][0] = 0; ways[2][1] = -1; // 왼쪽
+        ways[2][0] = 0; ways[2][1] = 1; // 오른쪽
+        ways[1][0] = 0; ways[1][1] = -1; // 왼쪽
     }
 
     return ways;
@@ -291,12 +291,12 @@ int decide_movement(Point destination) {
         if (dx < 0 && dy == 0) return 3; 
     } else if (currDirection == EAST) {
         if (dx > 0 && dy == 0) return 1;
-        if (dy < 0 && dx == 0) return 2;
-        if (dy > 0 && dx == 0) return 3; 
+        if (dy < 0 && dx == 0) return 3;
+        if (dy > 0 && dx == 0) return 2; 
     } else if (currDirection == WEST) {
         if (dx < 0 && dy == 0) return 1; 
-        if (dy > 0 && dx == 0) return 2; 
-        if (dy < 0 && dx == 0) return 3; 
+        if (dy > 0 && dx == 0) return 3; 
+        if (dy < 0 && dx == 0) return 2; 
     } else {
         return 0;
     }
@@ -444,7 +444,7 @@ void* raspbot_thread(void *arg) {
     // 초기 command 설정 - 직진
     // COMMAND = 1;
 
-    tracking_function();
+    //tracking_function();
 }
 
 int main(int argc, char *argv[]) {

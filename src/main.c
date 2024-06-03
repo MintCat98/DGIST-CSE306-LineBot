@@ -55,20 +55,20 @@ void print_received_map(Node map[ROW][COL]) {
 //디버깅용
 void directionPrint() {
     if (robot.direction == 0) {
-        printf("robot.direction: 동\n");
+        printf("robot.direction: EAST\n");
     } else if (robot.direction == 1) {
-        printf("robot.direction: 서\n");
+        printf("robot.direction: WEST\n");
     } else if (robot.direction == 2) {
-        printf("robot.direction: 남\n");
+        printf("robot.direction: SOUTH\n");
     } else if (robot.direction == 3) {
-        printf("robot.direction: 북\n");
+        printf("robot.direction: NORTH\n");
     }
 }
 
 void printCommand(int cmd) {
-    if (cmd == 1) printf("직진\n");
-    else if (cmd == 2) printf("좌회전\n");
-    else if (cmd == 3) printf("우회전\n");
+    if (cmd == 1) printf("Go Straight\n");
+    else if (cmd == 2) printf("Turn Left\n");
+    else if (cmd == 3) printf("Turn Right\n");
     return;
 }
 
@@ -351,29 +351,30 @@ void* qr_thread(void* arg) {
     camSetup();
 
     //디버깅용
-    printf("초기 ");
+    printf("Initial ");
     directionPrint();
 
     while (1) {
         detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
-
+            /*
             if (qr_info.x == previous.x && qr_info.y == previous.y) {
-                printf("중복 qr detected (%d, %d)\n", qr_info.x, qr_info.y);
+                printf(" qr detected (%d, %d)\n", qr_info.x, qr_info.y);
                 qr_detected = 0;
                 continue;
             }
+            */
 
             nQR += 1;
             robot.x = qr_info.x;
             robot.y = qr_info.y;
             printf("Current location: (%d, %d)\n", robot.x, robot.y);
             
-            printf("direction update 전: ");
+            printf("BEFORE direction update: ");
             directionPrint();
             robot.direction = set_direction(robot.x, robot.y);
-            printf("direction update 후: ");
+            printf("AFTER direction update: ");
             directionPrint();
 
             qr_detected = 0; 

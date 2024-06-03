@@ -34,17 +34,17 @@ void setup() {
     printf("Setup all clear!\n");
 }
 
-void move_forward() {
-    int Tracking_Left1Value = digitalRead(Tracking_Left1);
+void move_forward(int l1, int l2, int r1, int r2) {
+    /*int Tracking_Left1Value = digitalRead(Tracking_Left1);
     int Tracking_Left2Value = digitalRead(Tracking_Left2);
     int Tracking_Right1Value = digitalRead(Tracking_Right1);
-    int Tracking_Right2Value = digitalRead(Tracking_Right2);
+    int Tracking_Right2Value = digitalRead(Tracking_Right2);*/
     // Pin status => Turn Right
     // 0 0 X 0
     // 1 0 X 0
     // 0 1 X 0
     if ((Tracking_Left1Value == LOW || Tracking_Left2Value == LOW) && Tracking_Right2Value == LOW) {
-        Run_Car(70, -40);
+        Run_Car(50, -40);
         delay(200);
     }
     // Pin status => Turn Left
@@ -52,27 +52,27 @@ void move_forward() {
     // 0 X 0 1
     // 0 X 1 0
     else if (Tracking_Left1Value == LOW && (Tracking_Right1Value == LOW || Tracking_Right2Value == LOW)) {
-        Run_Car(-40, 70);
+        Run_Car(-40, 50);
         delay(200);
     }
     // Leftmost
     else if (Tracking_Left1Value == LOW) {
-        Run_Car(-70, 70);
+        Run_Car(-50, 50);
         delay(50);
     }
     // Rightmost
     else if (Tracking_Right2Value == LOW) {
-        Run_Car(70, -70);
+        Run_Car(50, -50);
         delay(50);
     }
     // 왼쪽 작은 커브 처리
     else if (Tracking_Left2Value == LOW && Tracking_Right1Value == HIGH) {
-        Run_Car(-60, 60);
+        Run_Car(-50, 50);
         delay(20);
     }
     // 오른쪽 작은 커브 처리
     else if (Tracking_Left2Value == HIGH && Tracking_Right1Value == LOW) {
-        Run_Car(60, -60);
+        Run_Car(50, -50);
         delay(20);
     }
     // Straight
@@ -82,12 +82,12 @@ void move_forward() {
 }
 
 void move_left() {
-    Run_Car(-40, 50);
+    Run_Car(-50, 50);
     delay(200);
 }
 
 void move_right() {
-    Run_Car(50, -40);
+    Run_Car(50, -50);
     delay(200);
 }
 
@@ -100,62 +100,114 @@ int intersection_signal(int l1, int l2, int r1, int r2)
 
 void tracking_function()
 {
+    //while (1) {
+    //    // Set up Sensors
+    //    int Tracking_Left1Value = digitalRead(Tracking_Left1);
+    //    int Tracking_Left2Value = digitalRead(Tracking_Left2);
+    //    int Tracking_Right1Value = digitalRead(Tracking_Right1);
+    //    int Tracking_Right2Value = digitalRead(Tracking_Right2);
+
+    //    // When it arrives at an intersection, stop_signal() returns 1.
+    //    int INTERSECTION = intersection_signal(Tracking_Left1Value, Tracking_Left2Value, Tracking_Right1Value, Tracking_Right2Value);
+
+    //    // INTERSECTION => Follow the COMMAND
+    //    if (INTERSECTION) {
+    //        Stop_Car();
+    //        switch (COMMAND) {
+
+    //            // Left-Rotation
+    //        case 2:
+    //            while (1) {
+    //                // Left-Rotation until [HLLH]
+    //                // If [HLLH] => move_forward()
+    //                Tracking_Left1Value = digitalRead(Tracking_Left1);
+    //                Tracking_Left2Value = digitalRead(Tracking_Left2);
+    //                Tracking_Right1Value = digitalRead(Tracking_Right1);
+    //                Tracking_Right2Value = digitalRead(Tracking_Right2);
+    //                if (Tracking_Left1Value == HIGH && Tracking_Left2Value == LOW && Tracking_Right1Value == LOW && Tracking_Right2Value == HIGH) {
+    //                    delay(50);
+    //                    COMMAND = 1;
+    //                    break;
+    //                }
+    //                move_left();
+    //            }
+    //            break;
+
+    //            // Right-Rotation
+    //        case 3:
+    //            while (1) {
+    //                Tracking_Left1Value = digitalRead(Tracking_Left1);
+    //                Tracking_Left2Value = digitalRead(Tracking_Left2);
+    //                Tracking_Right1Value = digitalRead(Tracking_Right1);
+    //                Tracking_Right2Value = digitalRead(Tracking_Right2);
+    //                if (Tracking_Left1Value == HIGH && Tracking_Left2Value == LOW && Tracking_Right1Value == LOW && Tracking_Right2Value == HIGH) {
+    //                    delay(50);
+    //                    COMMAND = 1;
+    //                    break;
+    //                }
+    //                move_right();
+    //            }
+    //            break;
+
+    //            // Forward will use outer move_forward()
+    //        default:
+    //            break;
+    //        }
+    //    }
+
+    //    // ~INTERSECTION => move_forward
+    //    move_forward();
+    //}
+
+    int Tracking_Left1Value;
+    int Tracking_Left2Value;
+    int Tracking_Right1Value;
+    int Tracking_Right2Value;
+    int INTERSECTION;
+
     while (1) {
-        // Set up Sensors
-        int Tracking_Left1Value = digitalRead(Tracking_Left1);
-        int Tracking_Left2Value = digitalRead(Tracking_Left2);
-        int Tracking_Right1Value = digitalRead(Tracking_Right1);
-        int Tracking_Right2Value = digitalRead(Tracking_Right2);
+        Tracking_Left1Value = digitalRead(Tracking_Left1);
+        Tracking_Left2Value = digitalRead(Tracking_Left2);
+        Tracking_Right1Value = digitalRead(Tracking_Right1);
+        Tracking_Right2Value = digitalRead(Tracking_Right2);
 
-        // When it arrives at an intersection, stop_signal() returns 1.
-        int INTERSECTION = intersection_signal(Tracking_Left1Value, Tracking_Left2Value, Tracking_Right1Value, Tracking_Right2Value);
+        INTERSECTION = intersection_signal(Tracking_Left1Value, Tracking_Left2Value, Tracking_Right1Value, Tracking_Right2Value);
 
-        // INTERSECTION => Follow the COMMAND
         if (INTERSECTION) {
+            delay(300);
             Stop_Car();
-            switch (COMMAND) {
-
-                // Left-Rotation
-            case 2:
-                while (1) {
-                    // Left-Rotation until [HLLH]
-                    // If [HLLH] => move_forward()
+            
+            switch (COMMAND)
+            {
+            case 2: // Left
+                while (Tracking_Left1Value == LOW && Tracking_Left2Value == HIGH && Tracking_Right1Value == HIGH && Tracking_Right2Value == HIGH) {
                     Tracking_Left1Value = digitalRead(Tracking_Left1);
                     Tracking_Left2Value = digitalRead(Tracking_Left2);
                     Tracking_Right1Value = digitalRead(Tracking_Right1);
                     Tracking_Right2Value = digitalRead(Tracking_Right2);
-                    if (Tracking_Left1Value == HIGH && Tracking_Left2Value == LOW && Tracking_Right1Value == LOW && Tracking_Right2Value == HIGH) {
-                        delay(50);
-                        COMMAND = 1;
-                        break;
-                    }
                     move_left();
                 }
                 break;
-
-                // Right-Rotation
-            case 3:
-                while (1) {
+            
+            case 3: // Right
+                while (Tracking_Left1Value == HIGH && Tracking_Left2Value == HIGH && Tracking_Right1Value == HIGH && Tracking_Right2Value == LOW) {
                     Tracking_Left1Value = digitalRead(Tracking_Left1);
                     Tracking_Left2Value = digitalRead(Tracking_Left2);
                     Tracking_Right1Value = digitalRead(Tracking_Right1);
                     Tracking_Right2Value = digitalRead(Tracking_Right2);
-                    if (Tracking_Left1Value == HIGH && Tracking_Left2Value == LOW && Tracking_Right1Value == LOW && Tracking_Right2Value == HIGH) {
-                        delay(50);
-                        COMMAND = 1;
-                        break;
-                    }
                     move_right();
                 }
                 break;
 
-                // Forward will use outer move_forward()
-            default:
+            default:// Forward
                 break;
             }
         }
 
-        // ~INTERSECTION => move_forward
-        move_forward();
+        Tracking_Left1Value = digitalRead(Tracking_Left1);
+        Tracking_Left2Value = digitalRead(Tracking_Left2);
+        Tracking_Right1Value = digitalRead(Tracking_Right1);
+        Tracking_Right2Value = digitalRead(Tracking_Right2);
+        move_forward(Tracking_Left1Value, Tracking_Left2Value, Tracking_Right1Value, Tracking_Right2Value);
     }
 }

@@ -391,11 +391,13 @@ void* qr_thread(void* arg) {
                 send_action(sock, robot.x, robot.y, move);
             }
 
+            Point next;
+
             // 다음 목적지 선택
             if (algorithm == 1) {
-                Point next = find_next_destination(global_dgist.map);
+                next = find_next_destination(global_dgist.map);
             } else if (algorithm == 2) {
-                Point next = find_next_destination2(global_dgist.map);
+                next = find_next_destination2(global_dgist.map);
             }
             
             printf("Next destination: (%d, %d)\n", next.x, next.y);

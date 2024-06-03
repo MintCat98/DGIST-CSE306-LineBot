@@ -146,6 +146,34 @@ int (*findWays(Direction direction))[2] {
     return ways;
 }
 
+Direction update_direction(int action, Direction direction) {
+    int currDirection = direction;
+
+    if (action == 2) { // 왼쪽으로 회전
+        if (currDirection == NORTH) {
+            return WEST;
+        } else if (currDirection == SOUTH) {
+            return EAST;
+        } else if (currDirection == EAST) {
+            return NORTH;
+        } else if (currDirection == WEST) {
+            return SOUTH;
+        }
+    } else if (action == 3) { // 오른쪽으로 회전
+        if (currDirection == NORTH) {
+            return EAST;
+        } else if (currDirection == SOUTH) {
+            return WEST;
+        } else if (currDirection == EAST) {
+            return SOUTH;
+        } else if (currDirection == WEST) {
+            return NORTH;
+        }
+    } else {
+        return currDirection;
+    }
+}
+
 
 Point find_next_destination2(Node map[ROW][COL]) {
     Point best_point = {robot.x, robot.y};
@@ -236,33 +264,6 @@ int decide_movement(Point destination) {
     }
 }
 
-Direction update_direction(int action, Direction direction) {
-    int currDirection = direction;
-
-    if (action == 2) { // 왼쪽으로 회전
-        if (currDirection == NORTH) {
-            return WEST;
-        } else if (currDirection == SOUTH) {
-            return EAST;
-        } else if (currDirection == EAST) {
-            return NORTH;
-        } else if (currDirection == WEST) {
-            return SOUTH;
-        }
-    } else if (action == 3) { // 오른쪽으로 회전
-        if (currDirection == NORTH) {
-            return EAST;
-        } else if (currDirection == SOUTH) {
-            return WEST;
-        } else if (currDirection == EAST) {
-            return SOUTH;
-        } else if (currDirection == WEST) {
-            return NORTH;
-        }
-    } else {
-        return currDirection;
-    }
-}
 
 int should_place_bomb(DGIST* dgist) {
     // 첫 QR 인식 후 90초가 지난 시점부터 폭탄 설치

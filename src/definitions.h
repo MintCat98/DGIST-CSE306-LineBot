@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <pthread.h>
+#include <signal.h>
 
 #define ROW 5
 #define COL 5

@@ -356,7 +356,7 @@ void* qr_thread(void* arg) {
             }
 
             // 다음 목적지 선택
-            Point next = find_next_destination2(global_dgist.map);
+            Point next = find_next_destination(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
             int cmd = decide_movement(next);
             COMMAND = cmd;

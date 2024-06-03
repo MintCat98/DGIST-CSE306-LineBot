@@ -82,13 +82,13 @@ void move_forward() {
 }
 
 void move_left() {
-    Run_Car(-40, 50);
-    delay(200);
+    Run_Car(-40, 60);
+    delay(300);
 }
 
 void move_right() {
-    Run_Car(50, -40);
-    delay(200);
+    Run_Car(60, -40);
+    delay(300);
 }
 
 int intersection_signal(int l1, int l2, int r1, int r2)

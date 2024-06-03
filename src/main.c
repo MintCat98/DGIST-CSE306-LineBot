@@ -322,7 +322,7 @@ void* qr_thread(void* arg) {
 
     camSetup();
 
-    while () {
+    while (1) {
         detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {

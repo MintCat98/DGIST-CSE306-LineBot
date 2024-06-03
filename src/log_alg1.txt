@@ -1,0 +1,271 @@
+Setup #1 success!
+Setup #2 success!
+Setup all clear!
+Initial robot.direction: NORTH
+[INFO] Found QR-Code barcode: 01
+Current location: (0, 1)
+BEFORE direction update: robot.direction: NORTH
+AFTER direction update: robot.direction: NORTH
+Do not place a bomb at (0, 1)
+
+
+
+Next destination: (0, 2)
+Go Straight
+myIndex: 1
+- - 4 3 - 
+2 2 - - - 
+1 2 - - - 
+- 3 3 - - 
+- - - - 4 
+
+[INFO] Found QR-Code barcode: 01
+Current location: (0, 1)
+BEFORE direction update: robot.direction: NORTH
+AFTER direction update: Do not place a bomb at (0, 1)
+
+
+
+Next destination: (0, 2)
+[INFO] Found QR-Code barcode: 02
+Current location: (0, 2)
+BEFORE direction update: AFTER direction update: robot.direction: NORTH
+Do not place a bomb at (0, 2)
+
+
+
+Next destination: (0, 3)
+Go Straight
+- - 4 3 - 
+2 2 - - - 
+- 2 - - - 
+- 3 3 - - 
+- - - - 4 
+
+[INFO] Found QR-Code barcode: 02
+Current location: (0, 2)
+BEFORE direction update: robot.direction: NORTH
+AFTER direction update: Do not place a bomb at (0, 2)
+
+
+
+Next destination: (0, 4)
+- - 4 3 - 
+2 2 4 - - 
+- 2 - - - 
+- 3 3 - - 
+- - - - 4 
+
+[INFO] Found QR-Code barcode: 10
+Current location: (1, 0)
+BEFORE direction update: AFTER direction update: robot.direction: EAST
+Place a bomb at (1, 0)
+
+
+
+Next destination: (1, 1)
+Turn Right
+- - 4 3 - 
+2 2 4 - - 
+- 2 - - - 
+- 3 3 - - 
+- x - - 4 
+
+[INFO] Found QR-Code barcode: 10
+Current location: (1, 0)
+BEFORE direction update: robot.direction: EAST
+AFTER direction update: Place a bomb at (1, 0)
+
+
+
+Next destination: (2, 0)
+[INFO] Found QR-Code barcode: 10
+Current location: (1, 0)
+BEFORE direction update: AFTER direction update: robot.direction: EAST
+Place a bomb at (1, 0)
+
+
+
+Next destination: (1, 1)
+Turn Right
+[INFO] Found QR-Code barcode: 00
+Current location: (0, 0)
+BEFORE direction update: robot.direction: EAST
+AFTER direction update: robot.direction: WEST
+Do not place a bomb at (0, 0)
+
+
+
+Next destination: (0, 1)
+Turn Left
+- - 4 3 - 
+2 2 4 - - 
+- 2 - - - 
+- 3 3 - - 
+- x - - 4 
+
+[INFO] Found QR-Code barcode: 00
+Current location: (0, 0)
+BEFORE direction update: robot.direction: WEST
+AFTER direction update: Do not place a bomb at (0, 0)
+
+
+
+Next destination: (0, 0)
+[INFO] Found QR-Code barcode: 00
+Current location: (0, 0)
+BEFORE direction update: AFTER direction update: robot.direction: EAST
+Do not place a bomb at (0, 0)
+
+
+
+Next destination: (0, 1)
+Turn Right
+[INFO] Found QR-Code barcode: 01
+Current location: (0, 1)
+BEFORE direction update: robot.direction: EAST
+AFTER direction update: robot.direction: NORTH
+Do not place a bomb at (0, 1)
+
+
+
+Next destination: (1, 1)
+Turn Right
+- - 4 3 - 
+2 2 4 - - 
+- 2 - - - 
+- 3 3 - - 
+- x - - 4 
+
+[INFO] Found QR-Code barcode: 01
+Current location: (0, 1)
+BEFORE direction update: robot.direction: NORTH
+AFTER direction update: Do not place a bomb at (0, 1)
+
+
+
+Next destination: (0, 2)
+[INFO] Found QR-Code barcode: 02
+Current location: (0, 2)
+BEFORE direction update: AFTER direction update: robot.direction: NORTH
+Do not place a bomb at (0, 2)
+
+
+
+Next destination: (0, 3)
+Go Straight
+- - 4 3 - 
+2 2 4 - - 
+- 2 - - - 
+- 3 3 - - 
+- x - - 4 
+
+- - 4 3 - 
+2 2 4 - - 
+1 2 - - - 
+- 3 3 - - 
+- x - - 4 
+
+[INFO] Found QR-Code barcode: 02
+Current location: (0, 2)
+BEFORE direction update: robot.direction: NORTH
+AFTER direction update: Do not place a bomb at (0, 2)
+
+
+
+Next destination: (0, 4)
+[INFO] Found QR-Code barcode: 22
+Current location: (2, 2)
+BEFORE direction update: AFTER direction update: robot.direction: EAST
+Do not place a bomb at (2, 2)
+
+
+
+Next destination: (2, 3)
+Turn Right
+- - 4 3 - 
+2 2 4 - - 
+1 2 - - - 
+- 3 3 - - 
+- x - - 4 
+
+[INFO] Found QR-Code barcode: 11
+Current location: (1, 1)
+BEFORE direction update: robot.direction: EAST
+AFTER direction update: robot.direction: WEST
+Do not place a bomb at (1, 1)
+
+
+
+Next destination: (1, 2)
+Turn Left
+- - 4 3 - 
+2 2 4 - - 
+1 2 - - - 
+- - 3 - - 
+- x - - 4 
+
+- - 4 3 - 
+2 2 4 - - 
+1 2 - - - 
+- - 3 - - 
+- x - - 4 
+
+[INFO] Found QR-Code barcode: 01
+Current location: (0, 1)
+BEFORE direction update: robot.direction: WEST
+AFTER direction update: robot.direction: WEST
+Do not place a bomb at (0, 1)
+
+
+
+Next destination: (0, 2)
+Turn Left
+- - 4 3 - 
+2 2 4 - - 
+1 2 - - - 
+- - 3 - - 
+- x - - 4 
+
+[INFO] Found QR-Code barcode: 01
+Current location: (0, 1)
+BEFORE direction update: robot.direction: WEST
+AFTER direction update: Do not place a bomb at (0, 1)
+
+
+
+Next destination: (0, 2)
+[INFO] Found QR-Code barcode: 01
+Current location: (0, 1)
+BEFORE direction update: AFTER direction update: robot.direction: EAST
+Do not place a bomb at (0, 1)
+
+
+
+Next destination: (0, 2)
+Turn Right
+[INFO] Found QR-Code barcode: 02
+Current location: (0, 2)
+BEFORE direction update: robot.direction: EAST
+AFTER direction update: robot.direction: NORTH
+Do not place a bomb at (0, 2)
+
+
+
+Next destination: (0, 3)
+Go Straight
+- - 4 3 - 
+2 2 4 - - 
+- 2 - - - 
+- - 3 - - 
+- x - - 4 
+
+[INFO] Found QR-Code barcode: 02
+Current location: (0, 2)
+BEFORE direction update: robot.direction: NORTH
+AFTER direction update: Do not place a bomb at (0, 2)
+
+
+
+Next destination: (0, 4)
+[INFO] Found QR-Code barcode: 03

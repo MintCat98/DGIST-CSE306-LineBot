@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <time.h>
 #include <math.h>
+#include <signal.h>
 #include <wiringPi.h>
 #include "car_control.h"
 #include "car_tracking.h"
@@ -31,6 +32,12 @@ Robot robot;
 int COMMAND;
 int nQR;
 int myIndex;
+
+volatile sig_atomic_t stop;
+
+void handle_sigint(int sig) {
+    stop = 1;
+}
 
 // 디버깅용
 void print_received_map(Node map[ROW][COL]) {
@@ -215,22 +222,36 @@ int should_place_bomb(DGIST* dgist) {
     return 0;
 }
 
+//디버깅용
+void directionPrint() {
+    if (robot.direction == 0) {
+        printf("robot.direction: 동\n");
+    } else if (robot.direction == 1) {
+        printf("robot.direction: 서\n");
+    } else if (robot.direction == 1) {
+        printf("robot.direction: 남\n");
+    } else if (robot.direction == 1) {
+        printf("robot.direction: 북\n");
+    }
+}
+
 void* qr_thread(void* arg) {
     struct QRCodeInfo qr_info;
     int qr_detected = 0;
     nQR = 0;
     time_t start_time = *(time_t*)arg;
+
     camSetup();
-    while (true) {
+
+    while (!stop) {
         detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
             nQR += 1;
-            printf("QR Code Detected: %s\n", qr_info.data);
             robot.x = qr_info.x;
             robot.y = qr_info.y;
             printf("Current location: (%d, %d)\n", robot.x, robot.y);
-            qr_detected = 0; // Reset the flag for the next detection
+            qr_detected = 0; 
 
             // 뮤텍스를 사용하여 글로벌 데이터 접근
             pthread_mutex_lock(&dgist_mutex);
@@ -249,9 +270,11 @@ void* qr_thread(void* arg) {
             printf("Next destination: (%d, %d)\n", next.x, next.y);
             int cmd = decide_movement(next);
             COMMAND = cmd;
+
             Direction newDir = update_direction(COMMAND);
             robot.direction = newDir;
-            printf("New direction: %d \n", robot.direction);
+            printf("New ");
+            directionPrint();
             
             pthread_mutex_unlock(&dgist_mutex);
         }
@@ -265,7 +288,7 @@ void* qr_thread(void* arg) {
 void* server_thread(void* arg) {
     DGIST dgist;
 
-    while (true) {
+    while (!stop) { // 변경된 부분
         // 서버로부터 DGIST 구조체 수신
         receive_dgist(sock, &dgist);
         
@@ -297,6 +320,15 @@ void* raspbot_thread(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
+    struct sigaction sa;
+    sa.sa_handler = handle_sigint;
+    sa.sa_flags = 0; // 또는 SA_RESTART
+    sigemptyset(&sa.sa_mask);
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+
     if (argc != 4) {
         fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot index>\n", argv[0]);
         exit(EXIT_FAILURE);

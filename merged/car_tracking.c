@@ -4,6 +4,7 @@
 #include <wiringPiI2C.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <signal.h>
 #include "car_control.h"
 #include "car_tracking.h"
 #include "definitions.h"
@@ -96,7 +97,7 @@ int intersection_signal(int l1, int l2, int r1, int r2)
 
 void tracking_function()
 {
-    while (1) {
+    while (!stop) {
         // Set up Sensors
         int Tracking_Left1Value = digitalRead(Tracking_Left1);
         int Tracking_Left2Value = digitalRead(Tracking_Left2);

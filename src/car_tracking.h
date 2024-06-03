@@ -12,7 +12,7 @@
 
 void setup();
 
-void move_forward(int l1, int l2, int r1, int r2);
+void move_forward(int Tracking_Left1Value, int Tracking_Left2Value, int Tracking_Right1Value, int Tracking_Right2Value);
 
 void move_left();
 

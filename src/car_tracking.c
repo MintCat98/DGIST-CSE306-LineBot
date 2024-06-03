@@ -34,7 +34,7 @@ void setup() {
     printf("Setup all clear!\n");
 }
 
-void move_forward(int l1, int l2, int r1, int r2) {
+void move_forward(int Tracking_Left1Value, int Tracking_Left2Value, int Tracking_Right1Value, int Tracking_Right2Value) {
     /*int Tracking_Left1Value = digitalRead(Tracking_Left1);
     int Tracking_Left2Value = digitalRead(Tracking_Left2);
     int Tracking_Right1Value = digitalRead(Tracking_Right1);

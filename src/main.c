@@ -314,6 +314,13 @@ void directionPrint() {
     }
 }
 
+void printCommand(int cmd) {
+    if (cmd == 1) printf("직진\n");
+    else if (cmd == 2) printf("좌회전\n");
+    else if (cmd == 3) printf("우회전\n");
+    return;
+}
+
 void* qr_thread(void* arg) {
     struct QRCodeInfo qr_info;
     int qr_detected = 0;
@@ -349,6 +356,7 @@ void* qr_thread(void* arg) {
             printf("Next destination: (%d, %d)\n", next.x, next.y);
             int cmd = decide_movement(next);
             COMMAND = cmd;
+            printCommand(COMMAND);
 
             Direction newDir = update_direction(COMMAND, robot.direction);
             robot.direction = newDir;

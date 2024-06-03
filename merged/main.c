@@ -85,7 +85,7 @@ Point find_next_destination(Node map[ROW][COL]) {
     }
 
     Point best_point = {robot.x, robot.y};
-    int best_score = -3; // TODO: 폭탄의 최저 점수여야 함.
+    int best_score = -9; // TODO: 폭탄의 최저 점수여야 함.
 
     //Manual movement (4번째 QR을 인식하기 전까지는 앞으로만 가게 함 => 폭탄 (1,0)(3,0) 또는 (1,4),(3,4)에 설치 가능)
     /*
@@ -122,6 +122,90 @@ Point find_next_destination(Node map[ROW][COL]) {
     return best_point;
 }
 
+int (*findWays(Direction direction))[2] {
+    static int ways[3][2];
+
+    if (direction == NORTH) {
+        ways[0][0] = 0; ways[0][1] = 1; // 앞으로
+        ways[1][0] = 1; ways[1][1] = 0; // 오른쪽
+        ways[2][0] = -1; ways[2][1] = 0; // 왼쪽
+    } else if (direction == SOUTH) {
+        ways[0][0] = 0; ways[0][1] = -1; // 앞으로
+        ways[1][0] = -1; ways[1][1] = 0; // 오른쪽
+        ways[2][0] = 1; ways[2][1] = 0; // 왼쪽
+    } else if (direction == EAST) {
+        ways[0][0] = 1; ways[0][1] = 0; // 앞으로
+        ways[1][0] = 0; ways[1][1] = -1; // 오른쪽
+        ways[2][0] = 0; ways[2][1] = 1; // 왼쪽
+    } else if (direction == WEST) {
+        ways[0][0] = -1; ways[0][1] = 0; // 앞으로
+        ways[1][0] = 0; ways[1][1] = 1; // 오른쪽
+        ways[2][0] = 0; ways[2][1] = -1; // 왼쪽
+    }
+
+    return ways;
+}
+
+
+Point find_next_destination2(Node map[ROW][COL]) {
+    Point best_point = {robot.x, robot.y};
+    int best_score = -9;
+
+    int (*directions1)[2] = findWays(robot.direction);
+
+    for (int i = 0; i < 3; i++) {
+        int new_x = robot.x + directions1[i][0];
+        int new_y = robot.y + directions1[i][1];
+
+        if (new_x >= 0 && new_x < ROW && new_y >= 0 && new_y < COL) {
+            int score1 = 0;
+            int status = map[new_x][new_y].item.status;
+            if (status == 1) {
+                score1 = map[new_x][new_y].item.score;
+            } else if (status == 2) {
+                score1 = -8;
+            }
+
+            Direction newDirection = update_direction(i+1, robot.direction);
+            int (*directions2)[2] = findWays(newDirection);
+
+            for (int j = 0; j < 3; j++) {
+                int new_x2 = new_x + directions2[j][0];
+                int new_y2 = new_y + directions2[j][1];
+
+                if (new_x2 >= 0 && new_x2 < ROW && new_y2 >= 0 && new_y2 < COL) {
+                    // 적이 나보다 해당 포인트에 먼저 도착하는 경우 제외
+                    int oppDistance = distance(global_dgist.players[2].col, global_dgist.players[2].row, new_x2, new_y2);
+                    if (oppDistance <= 2) continue;
+
+                    int status2 = map[new_x2][new_y2].item.status;
+                    int score2 = 0;
+                    if (status2 == 1) {
+                        score2 = map[new_x2][new_y2].item.score;
+                    } else if (status2 == 2) {
+                        score2 == -8;
+                    }
+
+                    int total_score = score1 + score2;
+
+                    if (total_score > best_score) {
+                        best_score = total_score;
+                        best_point.x = new_x;
+                        best_point.y = new_y;
+                    }
+                }
+            }
+
+            if (score1 > best_score) {
+                best_score = score1;
+                best_point.x = new_x;
+                best_point.y = new_y;
+            }
+        }
+    }
+    return best_point;
+}
+
 // 로봇의 이동 명령을 결정하는 함수
 int decide_movement(Point destination) {
     // 목적지가 로봇의 현재 위치에 상대적으로 어디에 있는지 계산
@@ -129,21 +213,21 @@ int decide_movement(Point destination) {
     int dy = destination.y - robot.y; // 남북 방향
     int command;
 
-    int currDirection = robot.direction;
+    Direction currDirection = robot.direction;
 
-    if (currDirection == 3) {
+    if (currDirection == NORTH) {
         if (dy > 0 && dx == 0) return 1;
         if (dx < 0 && dy == 0) return 2; 
         if (dx > 0 && dy == 0) return 3; 
-    } else if (currDirection == 2) {
+    } else if (currDirection == SOUTH) {
         if (dy < 0 && dx == 0) return 1; 
         if (dx > 0 && dy == 0) return 2; 
         if (dx < 0 && dy == 0) return 3; 
-    } else if (currDirection == 0) {
+    } else if (currDirection == EAST) {
         if (dx > 0 && dy == 0) return 1;
         if (dy < 0 && dx == 0) return 2;
         if (dy > 0 && dx == 0) return 3; 
-    } else if (currDirection == 1) {
+    } else if (currDirection == WEST) {
         if (dx < 0 && dy == 0) return 1; 
         if (dy > 0 && dx == 0) return 2; 
         if (dy < 0 && dx == 0) return 3; 
@@ -152,34 +236,32 @@ int decide_movement(Point destination) {
     }
 }
 
-Direction update_direction(int action) {
-    int currDirection = robot.direction;
+Direction update_direction(int action, Direction direction) {
+    int currDirection = direction;
 
     if (action == 2) { // 왼쪽으로 회전
-        if (currDirection == 3) {
+        if (currDirection == NORTH) {
             return WEST;
-        } else if (currDirection == 2) {
+        } else if (currDirection == SOUTH) {
             return EAST;
-        } else if (currDirection == 0) {
+        } else if (currDirection == EAST) {
             return NORTH;
-        } else if (currDirection == 1) {
+        } else if (currDirection == WEST) {
             return SOUTH;
         }
     } else if (action == 3) { // 오른쪽으로 회전
-        if (currDirection == 3) {
+        if (currDirection == NORTH) {
             return EAST;
-        } else if (currDirection == 2) {
+        } else if (currDirection == SOUTH) {
             return WEST;
-        } else if (currDirection == 0) {
+        } else if (currDirection == EAST) {
             return SOUTH;
-        } else if (currDirection == 1) {
+        } else if (currDirection == WEST) {
             return NORTH;
         }
     } else {
-        return robot.direction;
+        return currDirection;
     }
-    
-
 }
 
 int should_place_bomb(DGIST* dgist) {
@@ -228,9 +310,9 @@ void directionPrint() {
         printf("robot.direction: 동\n");
     } else if (robot.direction == 1) {
         printf("robot.direction: 서\n");
-    } else if (robot.direction == 1) {
+    } else if (robot.direction == 2) {
         printf("robot.direction: 남\n");
-    } else if (robot.direction == 1) {
+    } else if (robot.direction == 3) {
         printf("robot.direction: 북\n");
     }
 }
@@ -266,12 +348,12 @@ void* qr_thread(void* arg) {
             }
 
             // 다음 목적지 선택
-            Point next = find_next_destination(global_dgist.map);
+            Point next = find_next_destination2(global_dgist.map);
             printf("Next destination: (%d, %d)\n", next.x, next.y);
             int cmd = decide_movement(next);
             COMMAND = cmd;
 
-            Direction newDir = update_direction(COMMAND);
+            Direction newDir = update_direction(COMMAND, robot.direction);
             robot.direction = newDir;
             printf("New ");
             directionPrint();

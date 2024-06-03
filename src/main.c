@@ -66,9 +66,9 @@ void directionPrint() {
 }
 
 void printCommand(int cmd) {
-    if (cmd == 1) printf("Go Straight\n");
-    else if (cmd == 2) printf("Turn Left\n");
-    else if (cmd == 3) printf("Turn Right\n");
+    if (cmd == 1) printf("***** Go Straight\n");
+    else if (cmd == 2) printf("***** Turn Left\n");
+    else if (cmd == 3) printf("***** Turn Right\n");
     return;
 }
 

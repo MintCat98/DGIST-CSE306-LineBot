@@ -329,6 +329,10 @@ void* qr_thread(void* arg) {
 
     camSetup();
 
+    //디버깅용
+    printf("초기 ");
+    directionPrint();
+
     while (1) {
         detectQRCode(&qr_info, &qr_detected);
         
@@ -407,14 +411,15 @@ void* raspbot_thread(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 4) {
-        fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot index>\n", argv[0]);
+    if (argc != 5) {
+        fprintf(stderr, "Usage: %s <server_ip> <server_port> <robot index> <initial direction>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     const char *server_ip = argv[1];
     int server_port = atoi(argv[2]);
     int robot_index = atoi(argv[3]); 
+    robot.direction = atoi(argv[4]);
 
     pthread_t qr_tid, server_tid, raspbot_tid;
     time_t start_time;
@@ -426,11 +431,9 @@ int main(int argc, char *argv[]) {
     if (robot_index == 1) {
         robot.x = 0;
         robot.y = 0;
-        robot.direction = EAST;
     } else {
         robot.x = 4;
         robot.y = 4;
-        robot.direction = WEST;
     }
 
     // Raspbot 스레드 시작

@@ -1,0 +1,2 @@
+<Add option>
+LD_PRELOAD=./noimshow.so ./<runfile_name>

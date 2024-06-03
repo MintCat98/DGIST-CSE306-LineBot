@@ -3,14 +3,11 @@
 #include "car_control.h"
 #include "car_tracking.h"
 
+int COMMAND = 0;
+
 int main() {
     setup();
-
-    while (1) {
-        tracking_function();
-        printf("Tracking_func is called.\n");
-        delay(100);
-    }
-
+    tracking_function();
+    
     return 0;
 }

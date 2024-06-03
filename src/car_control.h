@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+
 extern int fd;
 
 void write_block_data(int i2c_addr, unsigned char* data, int length);

@@ -12,9 +12,10 @@
    - Sangwoo Jeon *(202211169)*
    - Gahyun Lee *(202011135)*
 
+---
 ### How to Use `runfile`
-> `./runfile <IP_Adress> <Port_Num> <PlayerIndex> <InitialDirection> <Algorithm>`
-> *ex: `./runfile 127.0.0.1 1234 1 2 1`*
+**Run with**: `./runfile <IP_Adress> <Port_Num> <Player_Index> <Initial_Direction> <Algorithm>`
+*(ex: `./runfile 127.0.0.1 1234 1 2 1`)*
 - **Options**
   - **Player Index**: Select `1` or `2`
   - **Initial Direction**: Select an integer between `1` to `3`

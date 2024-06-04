@@ -241,7 +241,8 @@ Point find_next_destination2(Node map[ROW][COL]) {
 
                 if (new_x2 >= 0 && new_x2 < ROW && new_y2 >= 0 && new_y2 < COL) {
                     // 적이 나보다 해당 포인트에 먼저 도착하는 경우 제외
-                    int oppDistance = distance(global_dgist.players[2].col, global_dgist.players[2].row, new_x2, new_y2);
+                    int opponent_index = (myIndex == 1) ? 2 : 1;
+                    int oppDistance = distance(global_dgist.players[opponent_index].col, global_dgist.players[opponent_index].row, new_x2, new_y2);
                     if (oppDistance <= 2) continue;
 
                     int status2 = map[new_x2][new_y2].item.status;
@@ -321,23 +322,22 @@ int should_place_bomb(DGIST* dgist) {
     }
 
     // (1,0), (3,0), (1,4), (3,4)일 경우에 폭탄 설치
-    if ((robot.x == 1 && robot.y == 0) ||
+    /*if ((robot.x == 1 && robot.y == 0) ||
         (robot.x == 3 && robot.y == 0) ||
         (robot.x == 1 && robot.y == 4) ||
         (robot.x == 3 && robot.y == 4)) {
         return 1;
-    }
+    }*/
 
     // 적과의 거리가 2 이하일 경우에 폭탄 설치
-    /*
-    int opponent_index = (my_index == 0) ? 1 : 0;
-    int opponent_x = dgist->players[opponent_index].col;
-    int opponent_y = dgist->players[opponent_index].row;
+    int opponent_index = (myIndex == 1) ? 2 : 1;
+    int opponent_x = global_dgist.players[opponent_index].col;
+    int opponent_y = global_dgist.players[opponent_index].row;
 
-    if (sqrt(pow(robot.x - opponent_x, 2) + pow(robot.y - opponent_y, 2)) <= 2) {
+    int oppDis = distance (robot.x, robot.y, opponent_x, opponent_y);
+    if (oppDis < 2) {
         return 1;
-    }
-    */
+    } 
 
     return 0;
 }
@@ -358,13 +358,13 @@ void* qr_thread(void* arg) {
         detectQRCode(&qr_info, &qr_detected);
         
         if (qr_detected) {
-            /*
+            
             if (qr_info.x == previous.x && qr_info.y == previous.y) {
                 printf(" qr detected (%d, %d)\n", qr_info.x, qr_info.y);
                 qr_detected = 0;
                 continue;
             }
-            */
+            
 
             nQR += 1;
             robot.x = qr_info.x;

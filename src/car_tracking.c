@@ -44,7 +44,7 @@ void move_forward() {
     // 1 0 X 0
     // 0 1 X 0
     if ((Tracking_Left1Value == LOW || Tracking_Left2Value == LOW) && Tracking_Right2Value == LOW) {
-        Run_Car(70, -40);
+        Run_Car(40, -40);
         delay(200);
     }
     // Pin status => Turn Left
@@ -52,27 +52,27 @@ void move_forward() {
     // 0 X 0 1
     // 0 X 1 0
     else if (Tracking_Left1Value == LOW && (Tracking_Right1Value == LOW || Tracking_Right2Value == LOW)) {
-        Run_Car(-40, 70);
+        Run_Car(-40, 40);
         delay(200);
     }
     // Leftmost
     else if (Tracking_Left1Value == LOW) {
-        Run_Car(-70, 70);
+        Run_Car(-40, 40);
         delay(50);
     }
     // Rightmost
     else if (Tracking_Right2Value == LOW) {
-        Run_Car(70, -70);
+        Run_Car(40, -40);
         delay(50);
     }
     // 왼쪽 작은 커브 처리
     else if (Tracking_Left2Value == LOW && Tracking_Right1Value == HIGH) {
-        Run_Car(-60, 60);
+        Run_Car(-40, 40);
         delay(20);
     }
     // 오른쪽 작은 커브 처리
     else if (Tracking_Left2Value == HIGH && Tracking_Right1Value == LOW) {
-        Run_Car(60, -60);
+        Run_Car(40, -40);
         delay(20);
     }
     // Straight

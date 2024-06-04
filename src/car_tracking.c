@@ -83,12 +83,12 @@ void move_forward() {
 
 void move_left() {
     Run_Car(-40, 60);
-    delay(300);
+    delay(200);
 }
 
 void move_right() {
     Run_Car(60, -40);
-    delay(300);
+    delay(200);
 }
 
 int intersection_signal(int l1, int l2, int r1, int r2)
@@ -113,6 +113,7 @@ void tracking_function()
         // INTERSECTION => Follow the COMMAND
         if (INTERSECTION) {
             Stop_Car();
+            delay(50);
             switch (COMMAND) {
 
                 // Left-Rotation

@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include "car_control.h"
 #include "car_tracking.h"
+#include "definitions.h"
 
 int COMMAND;
 

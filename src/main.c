@@ -1,9 +1,26 @@
 #include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <time.h>
+#include <math.h>
 #include <wiringPi.h>
 #include "car_control.h"
 #include "car_tracking.h"
+#include "definitions.h"
 
-int COMMAND = 0;
+// C++에서 정의된 함수 선언
+#ifdef __cplusplus
+extern "C" {
+#endif
+    //void detectQRCode(struct QRCodeInfo *qr_info, bool *qr_detected);
+#ifdef __cplusplus
+}
+#endif
 
 // 글로벌 변수와 뮤텍스 정의
 DGIST global_dgist;
@@ -423,6 +440,10 @@ void* server_thread(void* arg) {
 
 void* raspbot_thread(void *arg) {
     setup();
+
+    // 초기 command 설정 - 직진
+    // COMMAND = 1;
+
     tracking_function();
 }
 
@@ -480,5 +501,26 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     
+    // QR 코드 인식 스레드 시작
+    if (pthread_create(&qr_tid, NULL, qr_thread, &start_time) != 0) {
+        perror("Failed to create QR thread");
+        exit(1);
+    }
+
+    // 서버 통신 스레드 시작
+    if (pthread_create(&server_tid, NULL, server_thread, NULL) != 0) {
+        perror("Failed to create server thread");
+        exit(1);
+    }
+
+    // 스레드 종료 대기
+    pthread_join(raspbot_tid, NULL);
+    pthread_join(qr_tid, NULL);
+    pthread_join(server_tid, NULL);
+
+    // 메인 함수 종료 시 소켓 닫기
+    close(sock);
+    printf("Socket closed in main.\n");
+
     return 0;
 }
